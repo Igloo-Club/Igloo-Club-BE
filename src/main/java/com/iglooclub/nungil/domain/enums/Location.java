@@ -10,5 +10,5 @@ public enum Location {
     GWANGHWAMUN("광화문"),
     ;
 
-    private final String name;
+    private final String title;
 }
