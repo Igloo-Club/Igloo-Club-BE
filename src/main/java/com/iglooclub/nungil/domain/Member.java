@@ -13,17 +13,19 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String oauth;
+    @Enumerated(value = EnumType.STRING)
+    private OAuthProvider oauth;
 
     private String oauthAccess;
+
+    private Long oauthId;
 
     private String nickname;
 
@@ -66,24 +68,31 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private PersonalityDepiction personalityDepiction;
 
+
     private String description;
 
+    @Builder.Default
     private Integer point = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<AvailableTimeAllocation> availableTimeList = new ArrayList<>();
 
+    @Builder.Default
     private Integer noshowCount = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Hobby> hobbyList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     private Contact contact;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Nungil> nungilList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
@@ -92,5 +101,18 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<MarkerAllocation> markerList;
-}
 
+    public Member(){
+        this.point = 0;
+        this.availableTimeList = new ArrayList<>();
+        this.noshowCount = 0;
+        this.hobbyList = new ArrayList<>();
+        this.nungilList = new ArrayList<>();
+        this.acquaintanceList = new ArrayList<>();
+    }
+
+    public void setOauthAccess(String OauthAccess){
+        this.oauthAccess = oauthAccess;
+    }
+
+}
