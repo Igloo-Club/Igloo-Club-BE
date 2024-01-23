@@ -21,7 +21,8 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String oauth;
+    @Embedded
+    private OauthInfo oauthInfo;
 
     private String oauthAccess;
 
@@ -92,5 +93,10 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<MarkerAllocation> markerList;
+
+    public Member update(String oauthAccess) {
+        this.oauthAccess = oauthAccess;
+        return this;
+    }
 }
 
