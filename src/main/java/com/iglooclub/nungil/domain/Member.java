@@ -15,7 +15,6 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,22 +68,28 @@ public class Member {
 
     private String description;
 
+    @Builder.Default
     private Integer point = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<AvailableTimeAllocation> availableTimeList = new ArrayList<>();
 
+    @Builder.Default
     private Integer noshowCount = 0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Hobby> hobbyList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     private Contact contact;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Nungil> nungilList = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
@@ -98,5 +103,13 @@ public class Member {
         this.oauthAccess = oauthAccess;
         return this;
     }
-}
 
+    public Member(){
+        this.point = 0;
+        this.availableTimeList = new ArrayList<>();
+        this.noshowCount = 0;
+        this.hobbyList = new ArrayList<>();
+        this.nungilList = new ArrayList<>();
+        this.acquaintanceList = new ArrayList<>();
+    }
+}
