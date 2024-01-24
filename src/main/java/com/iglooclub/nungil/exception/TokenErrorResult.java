@@ -6,10 +6,10 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum MemberErrorResult implements ErrorResult {
+public enum TokenErrorResult implements ErrorResult {
 
-    ANONYMOUS_USER(HttpStatus.UNAUTHORIZED, "Anonymous user"),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "Failed to find the User"),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "Failed to find the refresh token in cookie"),
+    UNEXPECTED_TOKEN(HttpStatus.BAD_REQUEST, "Given token is not valid"),
     ;
 
     private final HttpStatus httpStatus;
