@@ -11,6 +11,7 @@ import com.iglooclub.nungil.domain.enums.OauthProvider;
 import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.RefreshTokenRepository;
+import com.iglooclub.nungil.util.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -45,6 +46,8 @@ public class OauthService {
 
     private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
 
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+
     @Autowired
     public OauthService(MemberRepository memberRepository,
                         TokenProvider tokenProvider,
@@ -73,11 +76,18 @@ public class OauthService {
         // 4. JWT 리프레시 토큰 발급
         String refreshToken = tokenProvider.generateToken(member, REFRESH_TOKEN_DURATION);
         saveRefreshToken(member.getId(), refreshToken);
+        addRefreshTokenToCookie(request, response, refreshToken);
 
         // 5. JWT 액세스 토큰 발급
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
 
-        return new LoginResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken);
+    }
+
+    private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
+        int cookieMaxAge = (int) REFRESH_TOKEN_DURATION.toSeconds();
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+        CookieUtil.addHttpOnlyCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieMaxAge);
     }
 
     /**
