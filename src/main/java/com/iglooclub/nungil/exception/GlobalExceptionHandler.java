@@ -47,7 +47,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler({
-            MemberException.class
+            GeneralException.class
     })
     public ResponseEntity<ErrorResponse> handleRestApiException(final CustomException exception) {
         ErrorResult errorResult = exception.getErrorResult();
