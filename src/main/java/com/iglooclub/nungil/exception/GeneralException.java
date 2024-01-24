@@ -11,4 +11,9 @@ public class GeneralException extends RuntimeException implements CustomExceptio
         super(errorResult.getMessage());
         this.errorResult = errorResult;
     }
+
+    public GeneralException(ErrorResult errorResult, Throwable cause) {
+        super(errorResult.getMessage(), cause);
+        this.errorResult = errorResult;
+    }
 }

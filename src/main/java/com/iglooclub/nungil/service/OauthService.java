@@ -9,6 +9,8 @@ import com.iglooclub.nungil.domain.OauthInfo;
 import com.iglooclub.nungil.domain.RefreshToken;
 import com.iglooclub.nungil.domain.enums.OauthProvider;
 import com.iglooclub.nungil.dto.LoginResponse;
+import com.iglooclub.nungil.exception.GeneralException;
+import com.iglooclub.nungil.exception.GlobalErrorResult;
 import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.RefreshTokenRepository;
 import com.iglooclub.nungil.util.CookieUtil;
@@ -138,7 +140,7 @@ public class OauthService {
         try {
             jsonNode = objectMapper.readTree(responseBody);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new GeneralException(GlobalErrorResult.JSON_PROCESSING_EXCEPTION, e);
         }
         return jsonNode.get("access_token").asText();
     }
@@ -170,7 +172,7 @@ public class OauthService {
         try {
             return objectMapper.readTree(responseBody);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new GeneralException(GlobalErrorResult.JSON_PROCESSING_EXCEPTION, e);
         }
     }
 
