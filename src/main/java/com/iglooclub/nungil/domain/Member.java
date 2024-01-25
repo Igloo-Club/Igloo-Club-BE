@@ -63,11 +63,11 @@ public class Member {
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FaceDepictionAllocation> faceDepictionList = new ArrayList<>();
+    private List<FaceDepictionAllocation> faceDepictionAllocationList = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PersonalityDepictionAllocation> personalityDepictionList = new ArrayList<>();
+    private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
     @Column(length = 400)
     private String description;
@@ -77,14 +77,14 @@ public class Member {
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AvailableTimeAllocation> availableTimeList = new ArrayList<>();
+    private List<AvailableTimeAllocation> availableTimeAllocationList = new ArrayList<>();
 
     @Builder.Default
     private Integer noshowCount = 0;
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HobbyAllocation> hobbyList = new ArrayList<>();
+    private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Contact contact;
@@ -103,7 +103,7 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<MarkerAllocation> markerList = new ArrayList<>();
+    private List<MarkerAllocation> markerAllocationList = new ArrayList<>();
 
     public Member update(String oauthAccess) {
         this.oauthAccess = oauthAccess;
@@ -113,14 +113,14 @@ public class Member {
     public Member(){
         this.point = 0;
         this.disableCompany = true;
-        this.availableTimeList = new ArrayList<>();
+        this.availableTimeAllocationList = new ArrayList<>();
         this.noshowCount = 0;
-        this.hobbyList = new ArrayList<>();
+        this.hobbyAllocationList = new ArrayList<>();
         this.nungilList = new ArrayList<>();
         this.acquaintanceList = new ArrayList<>();
-        this.faceDepictionList = new ArrayList<>();
-        this.personalityDepictionList = new ArrayList<>();
-        this.markerList = new ArrayList<>();
+        this.faceDepictionAllocationList = new ArrayList<>();
+        this.personalityDepictionAllocationList = new ArrayList<>();
+        this.markerAllocationList = new ArrayList<>();
         this.locationList = new ArrayList<>();
     }
 
@@ -156,7 +156,7 @@ public class Member {
                 .faceDepiction(faceDepiction)
                 .member(this)
                 .build();
-        this.faceDepictionList.add(faceDepictionAllocation);
+        this.faceDepictionAllocationList.add(faceDepictionAllocation);
     }
 
     public void addPersonalityDepiction(PersonalityDepiction personalityDepiction) {
@@ -164,7 +164,7 @@ public class Member {
                 .personalityDepiction(personalityDepiction)
                 .member(this)
                 .build();
-        this.personalityDepictionList.add(personalityDepictionAllocation);
+        this.personalityDepictionAllocationList.add(personalityDepictionAllocation);
     }
 
     public void addMarker(Marker marker) {
@@ -172,7 +172,7 @@ public class Member {
                 .marker(marker)
                 .member(this)
                 .build();
-        this.markerList.add(markerAllocation);
+        this.markerAllocationList.add(markerAllocation);
     }
 
     public void addAvailableTime(AvailableTime availableTime) {
@@ -180,7 +180,7 @@ public class Member {
                 .availableTime(availableTime)
                 .member(this)
                 .build();
-        this.availableTimeList.add(availableTimeAllocation);
+        this.availableTimeAllocationList.add(availableTimeAllocation);
     }
 
     public void addHobby(Hobby hobby) {
@@ -188,6 +188,6 @@ public class Member {
                 .hobby(hobby)
                 .member(this)
                 .build();
-        this.hobbyList.add(hobbyAllocation);
+        this.hobbyAllocationList.add(hobbyAllocation);
     }
 }
