@@ -36,7 +36,8 @@ public class Member {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    private Boolean disableCompany;
+    @Builder.Default
+    private Boolean disableCompany = true;
 
     @Enumerated(value = EnumType.STRING)
     private AnimalFace animalFace;
@@ -106,6 +107,7 @@ public class Member {
 
     public Member(){
         this.point = 0;
+        this.disableCompany = true;
         this.availableTimeList = new ArrayList<>();
         this.noshowCount = 0;
         this.hobbyList = new ArrayList<>();
