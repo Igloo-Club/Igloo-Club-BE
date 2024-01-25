@@ -80,8 +80,8 @@ public class Member {
     private Integer noshowCount = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member")
-    private List<Hobby> hobbyList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HobbyAllocation> hobbyList = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     private Contact contact;
