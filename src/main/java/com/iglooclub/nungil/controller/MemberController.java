@@ -1,10 +1,12 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.dto.MemberDetailResponse;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +21,19 @@ public class MemberController {
 
     @PostMapping("/api/member")
     public ResponseEntity<?> createProfile(@RequestBody ProfileCreateRequest request, Principal principal) {
-        Member member = memberService.findById(Long.parseLong(principal.getName()));
+        Member member = getMember(principal);
         memberService.createProfile(member, request);
         return ResponseEntity.ok(null);
+    }
+
+    @GetMapping("/api/member")
+    public ResponseEntity<MemberDetailResponse> getMemberDetail(Principal principal) {
+        Member member = getMember(principal);
+        MemberDetailResponse memberDetail = memberService.getMemberDetail(member);
+        return ResponseEntity.ok(memberDetail);
+    }
+
+    private Member getMember(Principal principal) {
+        return memberService.findById(Long.parseLong(principal.getName()));
     }
 }

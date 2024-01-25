@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.dto.MemberDetailResponse;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.MemberErrorResult;
@@ -24,5 +25,9 @@ public class MemberService {
     @Transactional
     public void createProfile(Member member, ProfileCreateRequest request) {
         member.createProfile(request);
+    }
+
+    public MemberDetailResponse getMemberDetail(Member member) {
+        return MemberDetailResponse.create(member);
     }
 }

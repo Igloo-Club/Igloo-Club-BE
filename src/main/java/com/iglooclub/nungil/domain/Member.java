@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -124,6 +125,8 @@ public class Member {
         this.locationList = new ArrayList<>();
     }
 
+    // == 비즈니스 로직 == //
+
     public void createProfile(ProfileCreateRequest request) {
         Contact newContact = Contact.builder()
                 .kakao(request.getContactKakao())
@@ -150,6 +153,40 @@ public class Member {
         request.getHobbyList().forEach(this::addHobby);
 
     }
+
+    // == 조회 로직 == //
+
+    public List<FaceDepiction> getFaceDepictionList() {
+        return this.faceDepictionAllocationList.stream()
+                .map(FaceDepictionAllocation::getFaceDepiction)
+                .collect(Collectors.toList());
+    }
+
+    public List<PersonalityDepiction> getPersonalityDepictionList() {
+        return this.personalityDepictionAllocationList.stream()
+                .map(PersonalityDepictionAllocation::getPersonalityDepiction)
+                .collect(Collectors.toList());
+    }
+
+    public List<Marker> getMarkerList() {
+        return this.markerAllocationList.stream()
+                .map(MarkerAllocation::getMarker)
+                .collect(Collectors.toList());
+    }
+
+    public List<AvailableTime> getAvailableTimeList() {
+        return this.availableTimeAllocationList.stream()
+                .map(AvailableTimeAllocation::getAvailableTime)
+                .collect(Collectors.toList());
+    }
+
+    public List<Hobby> getHobbyList() {
+        return this.hobbyAllocationList.stream()
+                .map(HobbyAllocation::getHobby)
+                .collect(Collectors.toList());
+    }
+
+    // == 연관관계 메서드 == //
 
     public void addFaceDepiction(FaceDepiction faceDepiction) {
         FaceDepictionAllocation faceDepictionAllocation = FaceDepictionAllocation.builder()
