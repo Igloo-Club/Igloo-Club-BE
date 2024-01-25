@@ -88,8 +88,9 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
 
+    @Builder.Default
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Contact contact;
+    private Contact contact = Contact.builder().build();
 
     @Builder.Default
     @OneToMany(mappedBy = "member")
@@ -133,15 +134,11 @@ public class Member {
      * @param request 프로필 등록 요청 DTO
      */
     public void createProfile(ProfileCreateRequest request) {
-        Contact newContact = Contact.builder()
-                .kakao(request.getContactKakao())
-                .instagram(request.getContactInstagram())
-                .build();
 
         this.nickname = request.getNickname();
         this.sex = request.getSex();
         this.birthdate = request.getBirthdate();
-        this.contact = newContact;
+        this.contact.update(request.getContactKakao(), request.getContactInstagram());
         this.animalFace = request.getAnimalFace();
         this.job = request.getJob();
         this.height = request.getHeight();

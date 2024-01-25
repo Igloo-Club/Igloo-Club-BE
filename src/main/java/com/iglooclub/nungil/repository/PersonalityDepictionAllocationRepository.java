@@ -1,5 +1,6 @@
 package com.iglooclub.nungil.repository;
 
+import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.PersonalityDepictionAllocation;
 import com.iglooclub.nungil.domain.enums.PersonalityDepiction;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,8 @@ public interface PersonalityDepictionAllocationRepository extends JpaRepository<
     @Modifying
     @Query("delete from PersonalityDepictionAllocation f where f.personalityDepiction not in :personalityDepictionList")
     void deleteAllByPersonalityDepictionNotIn(@Param("personalityDepictionList") List<PersonalityDepiction> personalityDepictionList);
+
+    @Modifying
+    @Query("delete from PersonalityDepictionAllocation f where f.member = :member")
+    void deleteAllByMember(@Param("member") Member member);
 }

@@ -44,6 +44,13 @@ public class MemberService {
      */
     @Transactional
     public void createProfile(Member member, ProfileCreateRequest request) {
+        // == 데이터베이스 테이블에 프로필 데이터가 있다면 전부 삭제한다. == //
+        faceDepictionAllocationRepository.deleteAllByMember(member);
+        personalityDepictionAllocationRepository.deleteAllByMember(member);
+        markerAllocationRepository.deleteAllByMember(member);
+        availableTimeAllocationRepository.deleteAllByMember(member);
+        hobbyAllocationRepository.deleteAllByMember(member);
+
         member.createProfile(request);
     }
 

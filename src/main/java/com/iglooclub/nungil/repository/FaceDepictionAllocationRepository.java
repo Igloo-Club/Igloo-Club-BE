@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.repository;
 
 import com.iglooclub.nungil.domain.FaceDepictionAllocation;
+import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.enums.FaceDepiction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,4 +14,8 @@ public interface FaceDepictionAllocationRepository extends JpaRepository<FaceDep
     @Modifying
     @Query("delete from FaceDepictionAllocation f where f.faceDepiction not in :faceDepictionList")
     void deleteAllByFaceDepictionNotIn(@Param("faceDepictionList") List<FaceDepiction> faceDepictionList);
+
+    @Modifying
+    @Query("delete from FaceDepictionAllocation f where f.member = :member")
+    void deleteAllByMember(@Param("member") Member member);
 }

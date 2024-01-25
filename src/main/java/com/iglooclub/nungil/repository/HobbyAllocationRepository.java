@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.repository;
 
 import com.iglooclub.nungil.domain.HobbyAllocation;
+import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.enums.Hobby;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,4 +14,8 @@ public interface HobbyAllocationRepository extends JpaRepository<HobbyAllocation
     @Modifying
     @Query("delete from HobbyAllocation f where f.hobby not in :hobbyList")
     void deleteAllByHobbyNotIn(@Param("hobbyList") List<Hobby> hobbyList);
+
+    @Modifying
+    @Query("delete from HobbyAllocation f where f.member = :member")
+    void deleteAllByMember(@Param("member") Member member);
 }
