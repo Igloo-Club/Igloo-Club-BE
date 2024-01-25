@@ -22,4 +22,11 @@ public class Contact {
 
     @Nullable
     private String instagram;
+
+    // == 비즈니스 로직 == //
+
+    public void update(String kakao, String instagram) {
+        this.kakao = kakao;
+        this.instagram = instagram;
+    }
 }

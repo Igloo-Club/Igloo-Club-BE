@@ -3,13 +3,11 @@ package com.iglooclub.nungil.controller;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.MemberDetailResponse;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
+import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -31,6 +29,13 @@ public class MemberController {
         Member member = getMember(principal);
         MemberDetailResponse memberDetail = memberService.getMemberDetail(member);
         return ResponseEntity.ok(memberDetail);
+    }
+
+    @PatchMapping("/api/member")
+    public ResponseEntity<?> updateProfile(@RequestBody ProfileUpdateRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.updateProfile(member, request);
+        return ResponseEntity.ok(null);
     }
 
     private Member getMember(Principal principal) {

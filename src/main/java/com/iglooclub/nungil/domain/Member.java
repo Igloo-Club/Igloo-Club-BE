@@ -2,6 +2,7 @@ package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
+import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,11 +64,11 @@ public class Member {
     private MarriageState marriageState;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<FaceDepictionAllocation> faceDepictionAllocationList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
     @Column(length = 400)
@@ -77,17 +78,17 @@ public class Member {
     private Integer point = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<AvailableTimeAllocation> availableTimeAllocationList = new ArrayList<>();
 
     @Builder.Default
     private Integer noshowCount = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Contact contact;
 
     @Builder.Default
@@ -102,7 +103,7 @@ public class Member {
     @Builder.Default
     private List<LocationAllocation> locationList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
     private List<MarkerAllocation> markerAllocationList = new ArrayList<>();
 
@@ -152,6 +153,38 @@ public class Member {
         request.getAvailableTimeList().forEach(this::addAvailableTime);
         request.getHobbyList().forEach(this::addHobby);
 
+    }
+
+    public void updateProfile(ProfileUpdateRequest request,
+                              List<FaceDepictionAllocation> newFaceDepictionAllocationList,
+                              List<PersonalityDepictionAllocation> newPersonalityDepictionAllocationList,
+                              List<MarkerAllocation> newMarkerAllocationList,
+                              List<AvailableTimeAllocation> newAvailableTimeAllocationList,
+                              List<HobbyAllocation> newHobbyAllocationList) {
+
+        this.nickname = request.getNickname();
+        this.sex = request.getSex();
+        this.birthdate = request.getBirthdate();
+        this.contact.update(request.getContactKakao(), request.getContactInstagram());
+        this.animalFace = request.getAnimalFace();
+        this.job = request.getJob();
+        this.height = request.getHeight();
+        this.mbti = request.getMbti();
+        this.marriageState = request.getMarriageState();
+        this.religion = request.getReligion();
+        this.alcohol = request.getAlcohol();
+        this.smoke = request.getSmoke();
+        this.description = request.getDescription();
+
+        this.faceDepictionAllocationList = newFaceDepictionAllocationList;
+
+        this.personalityDepictionAllocationList = newPersonalityDepictionAllocationList;
+
+        this.markerAllocationList = newMarkerAllocationList;
+
+        this.availableTimeAllocationList = newAvailableTimeAllocationList;
+
+        this.hobbyAllocationList = newHobbyAllocationList;
     }
 
     // == 조회 로직 == //
