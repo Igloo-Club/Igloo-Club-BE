@@ -57,46 +57,46 @@ public class MemberService {
         hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
 
         // 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. //
-        List<FaceDepictionAllocation> newFaceDepictionAllocationList = new ArrayList<>();
+        List<FaceDepictionAllocation> nonExistingFaceDepictions = new ArrayList<>();
         for (FaceDepiction faceDepiction : request.getFaceDepictionList()) {
             if (!member.getFaceDepictionList().contains(faceDepiction)) {
-                newFaceDepictionAllocationList.add(FaceDepictionAllocation.builder()
+                nonExistingFaceDepictions.add(FaceDepictionAllocation.builder()
                         .faceDepiction(faceDepiction).member(member).build());
             }
         }
 
-        List<PersonalityDepictionAllocation> newPersonalityDepictionAllocationList = new ArrayList<>();
+        List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions = new ArrayList<>();
         for (PersonalityDepiction personalityDepiction : request.getPersonalityDepictionList()) {
             if (!member.getPersonalityDepictionList().contains(personalityDepiction)) {
-                newPersonalityDepictionAllocationList.add(PersonalityDepictionAllocation.builder()
+                nonExistingPersonalityDepictions.add(PersonalityDepictionAllocation.builder()
                         .personalityDepiction(personalityDepiction).member(member).build());
             }
         }
 
-        List<MarkerAllocation> newMarkerAllocationList = new ArrayList<>();
+        List<MarkerAllocation> nonExistingMarkers = new ArrayList<>();
         for (Marker marker : request.getMarkerList()) {
             if (!member.getMarkerList().contains(marker)) {
-                newMarkerAllocationList.add(MarkerAllocation.builder()
+                nonExistingMarkers.add(MarkerAllocation.builder()
                         .marker(marker).member(member).build());
             }
         }
 
-        List<AvailableTimeAllocation> newAvailableTimeAllocationList = new ArrayList<>();
+        List<AvailableTimeAllocation> nonExistingAvailableTimes = new ArrayList<>();
         for (AvailableTime availableTime : request.getAvailableTimeList()) {
             if (!member.getAvailableTimeList().contains(availableTime)) {
-                newAvailableTimeAllocationList.add(AvailableTimeAllocation.builder()
+                nonExistingAvailableTimes.add(AvailableTimeAllocation.builder()
                         .availableTime(availableTime).member(member).build());
             }
         }
 
-        List<HobbyAllocation> newHobbyAllocationList = new ArrayList<>();
+        List<HobbyAllocation> nonExistingHobbies = new ArrayList<>();
         for (Hobby hobby : request.getHobbyList()) {
             if (!member.getHobbyList().contains(hobby)) {
-                newHobbyAllocationList.add(HobbyAllocation.builder()
+                nonExistingHobbies.add(HobbyAllocation.builder()
                         .hobby(hobby).member(member).build());
             }
         }
 
-        member.updateProfile(request, newFaceDepictionAllocationList, newPersonalityDepictionAllocationList, newMarkerAllocationList, newAvailableTimeAllocationList, newHobbyAllocationList);
+        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingAvailableTimes, nonExistingHobbies);
     }
 }

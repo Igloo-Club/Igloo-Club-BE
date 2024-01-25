@@ -156,11 +156,11 @@ public class Member {
     }
 
     public void updateProfile(ProfileUpdateRequest request,
-                              List<FaceDepictionAllocation> newFaceDepictionAllocationList,
-                              List<PersonalityDepictionAllocation> newPersonalityDepictionAllocationList,
-                              List<MarkerAllocation> newMarkerAllocationList,
-                              List<AvailableTimeAllocation> newAvailableTimeAllocationList,
-                              List<HobbyAllocation> newHobbyAllocationList) {
+                              List<FaceDepictionAllocation> nonExistingFaceDepictions,
+                              List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
+                              List<MarkerAllocation> nonExistingMarkers,
+                              List<AvailableTimeAllocation> nonExistingAvailableTimes,
+                              List<HobbyAllocation> nonExistingHobbies) {
 
         this.nickname = request.getNickname();
         this.sex = request.getSex();
@@ -176,15 +176,15 @@ public class Member {
         this.smoke = request.getSmoke();
         this.description = request.getDescription();
 
-        this.faceDepictionAllocationList = newFaceDepictionAllocationList;
+        this.faceDepictionAllocationList = nonExistingFaceDepictions;
 
-        this.personalityDepictionAllocationList = newPersonalityDepictionAllocationList;
+        this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
 
-        this.markerAllocationList = newMarkerAllocationList;
+        this.markerAllocationList = nonExistingMarkers;
 
-        this.availableTimeAllocationList = newAvailableTimeAllocationList;
+        this.availableTimeAllocationList = nonExistingAvailableTimes;
 
-        this.hobbyAllocationList = newHobbyAllocationList;
+        this.hobbyAllocationList = nonExistingHobbies;
     }
 
     // == 조회 로직 == //
