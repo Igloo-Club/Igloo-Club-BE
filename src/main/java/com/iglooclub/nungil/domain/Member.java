@@ -4,7 +4,6 @@ import com.iglooclub.nungil.domain.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -60,11 +59,13 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MarriageState marriageState;
 
-    @Enumerated(value = EnumType.STRING)
-    private FaceDepiction faceDepiction;
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<FaceDepictionAllocation> faceDepictionAllocationList = new ArrayList<>();
 
-    @Enumerated(value = EnumType.STRING)
-    private PersonalityDepiction personalityDepiction;
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
     private String description;
 
@@ -77,6 +78,13 @@ public class Member {
 
     @Builder.Default
     private Integer noshowCount = 0;
+
+    @Enumerated(value = EnumType.STRING)
+    private Location location;
+
+    private Integer preferredAgeStart;
+
+    private Integer preferredAgeEnd;
 
     @Builder.Default
     @OneToMany(mappedBy = "member")
@@ -93,8 +101,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<LocationAllocation> locationList;
+
 
     @OneToMany(mappedBy = "member")
     private List<MarkerAllocation> markerList;
@@ -111,5 +118,7 @@ public class Member {
         this.hobbyList = new ArrayList<>();
         this.nungilList = new ArrayList<>();
         this.acquaintanceList = new ArrayList<>();
+        this.faceDepictionAllocationList = new ArrayList<>();
+        this.personalityDepictionAllocationList = new ArrayList<>();
     }
 }
