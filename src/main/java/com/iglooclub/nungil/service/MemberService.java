@@ -37,26 +37,41 @@ public class MemberService {
                 .orElseThrow(() -> new GeneralException(MemberErrorResult.USER_NOT_FOUND));
     }
 
+    /**
+     * 주어진 회원의 프로필 정보를 등록하는 메서드이다.
+     * @param member 프로필 정보가 등록되지 않은 회원
+     * @param request 프로필 등록 요청 DTO
+     */
     @Transactional
     public void createProfile(Member member, ProfileCreateRequest request) {
         member.createProfile(request);
     }
 
+    /**
+     * 회원 정보를 조회하는 메서드이다.
+     * @param member 정보를 조회할 회원의 Member 클래스
+     * @return 회원 정보 응답 DTO
+     */
     public MemberDetailResponse getMemberDetail(Member member) {
         return MemberDetailResponse.create(member);
     }
 
+    /**
+     * 주어진 회원의 프로필 정보를 수정하는 메서드이다.
+     * @param member 프로필 정보가 이미 등록된 회원
+     * @param request 프로필 수정 요청 DTO
+     */
     @Transactional
     public void updateProfile(Member member, ProfileUpdateRequest request) {
 
-        // 데이터베이스의 데이터들 중, 요청된 수정값이 아닌 값들을 모두 삭제한다. //
+        // == 데이터베이스의 데이터들 중, 요청된 수정값이 아닌 값들을 모두 삭제한다. == //
         faceDepictionAllocationRepository.deleteAllByFaceDepictionNotIn(request.getFaceDepictionList());
         personalityDepictionAllocationRepository.deleteAllByPersonalityDepictionNotIn(request.getPersonalityDepictionList());
         markerAllocationRepository.deleteAllByMarkerNotIn(request.getMarkerList());
         availableTimeAllocationRepository.deleteAllByAvailableTimeNotIn(request.getAvailableTimeList());
         hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
 
-        // 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. //
+        // == 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. == //
         List<FaceDepictionAllocation> nonExistingFaceDepictions = new ArrayList<>();
         for (FaceDepiction faceDepiction : request.getFaceDepictionList()) {
             if (!member.getFaceDepictionList().contains(faceDepiction)) {

@@ -128,6 +128,10 @@ public class Member {
 
     // == 비즈니스 로직 == //
 
+    /**
+     * 회원의 프로필 정보를 등록하는 메서드이다.
+     * @param request 프로필 등록 요청 DTO
+     */
     public void createProfile(ProfileCreateRequest request) {
         Contact newContact = Contact.builder()
                 .kakao(request.getContactKakao())
@@ -155,6 +159,15 @@ public class Member {
 
     }
 
+    /**
+     * 회원의 프로필 정보를 수정하는 메서드이다.
+     * @param request 프로필 수정 요청 DTO
+     * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingAvailableTimes available_time_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     */
     public void updateProfile(ProfileUpdateRequest request,
                               List<FaceDepictionAllocation> nonExistingFaceDepictions,
                               List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
