@@ -7,10 +7,7 @@ import com.iglooclub.nungil.service.NungilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -20,7 +17,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class NungilController {
     private final NungilService nungilService;
-    @GetMapping("/recommend")
+    @PostMapping("/recommend")
     public ResponseEntity<NungilResponse> recommendMember( Principal principal, @RequestBody ProfileRecommendRequest request){
         Member recommendedMember = nungilService.recommendMember(principal, request);
         if (recommendedMember == null){
