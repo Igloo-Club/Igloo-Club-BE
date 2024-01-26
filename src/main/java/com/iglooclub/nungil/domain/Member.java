@@ -38,6 +38,8 @@ public class Member {
     @JoinColumn(name = "company_id")
     private Company company;
 
+    private String email;
+
     @Builder.Default
     private Boolean disableCompany = true;
 
@@ -84,6 +86,13 @@ public class Member {
     @Builder.Default
     private Integer noshowCount = 0;
 
+    @Enumerated(value = EnumType.STRING)
+    private Location location;
+
+    private Integer preferredAgeStart;
+
+    private Integer preferredAgeEnd;
+
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
@@ -100,9 +109,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    @Builder.Default
-    private List<LocationAllocation> locationList = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
@@ -124,7 +131,6 @@ public class Member {
         this.faceDepictionAllocationList = new ArrayList<>();
         this.personalityDepictionAllocationList = new ArrayList<>();
         this.markerAllocationList = new ArrayList<>();
-        this.locationList = new ArrayList<>();
     }
 
     // == 비즈니스 로직 == //

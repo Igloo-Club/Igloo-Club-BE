@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.NungilStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -13,8 +10,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Nungil {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +21,15 @@ public class Nungil {
 
     private LocalDateTime createdAt;
 
+    private LocalDateTime expiredAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
@@ -36,4 +38,20 @@ public class Nungil {
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
     private String matchedAvailableTimes;
+
+    // == 정적 생성 메서드 == //
+    public static Nungil create(Member member, Member receiver, NungilStatus status) {
+        return Nungil.builder()
+                .member(member)
+                .receiver(receiver)
+                .createdAt(LocalDateTime.now())
+                .expiredAt(LocalDateTime.now().plusDays(7))
+                .status(status)
+                .build();
+    }
+
+    public void update(String matchedMarkers, String matchedAvailableTimes) {
+        this.matchedMarkers = matchedMarkers;
+        this.matchedAvailableTimes = matchedAvailableTimes;
+    }
 }
