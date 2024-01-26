@@ -32,8 +32,9 @@ public class NungilController {
     //Member 엔티티의 데이터를 NungilResponseDTO로 변환하는 메서드
     private NungilResponse convertToNungilResponse(Member member) {
          return NungilResponse.builder()
-              .location(member.getLocation())
-              .sex(member.getSex())
+                 .id(member.getId())
+                 .location(member.getLocation())
+                 .sex(member.getSex())
                  .age(LocalDateTime.now().minusYears(member.getBirthdate().getYear()).getYear())
                  .companyName(member.getCompany().getCompanyName())
                  .nickname(member.getNickname())

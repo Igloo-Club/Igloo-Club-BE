@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 @Builder
 public class NungilResponse {
+    private Long id;
 
     private Location location;
 
