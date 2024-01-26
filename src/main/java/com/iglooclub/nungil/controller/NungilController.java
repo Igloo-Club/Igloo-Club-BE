@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class NungilController {
     private final NungilService nungilService;
-    @GetMapping('/recommend')
+    @GetMapping("/recommend")
     public ResponseEntity<NungilResponse> recommendMember( Principal principal){
         Member recommendedMember = nungilService.recommendMember(principal);
         if (recommendedMember == null){
