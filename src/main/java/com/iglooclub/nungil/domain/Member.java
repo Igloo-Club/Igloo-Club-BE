@@ -1,17 +1,15 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
-import com.iglooclub.nungil.dto.ProfileCreateRequest;
-import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -84,6 +82,13 @@ public class Member {
     @Builder.Default
     private Integer noshowCount = 0;
 
+    @Enumerated(value = EnumType.STRING)
+    private Location location;
+
+    private Integer preferredAgeStart;
+
+    private Integer preferredAgeEnd;
+
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
@@ -100,9 +105,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    @Builder.Default
-    private List<LocationAllocation> locationList = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
@@ -124,7 +127,6 @@ public class Member {
         this.faceDepictionAllocationList = new ArrayList<>();
         this.personalityDepictionAllocationList = new ArrayList<>();
         this.markerAllocationList = new ArrayList<>();
-        this.locationList = new ArrayList<>();
     }
 
     // == 비즈니스 로직 == //

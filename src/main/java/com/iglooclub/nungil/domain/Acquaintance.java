@@ -20,4 +20,8 @@ public class Acquaintance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "acquaintance_member_id")
+    private Member acquaintanceMember;
 }
