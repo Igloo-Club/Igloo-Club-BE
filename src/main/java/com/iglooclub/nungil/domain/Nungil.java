@@ -29,6 +29,10 @@ public class Nungil {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
+
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
     private String matchedMarkers;
