@@ -6,7 +6,7 @@ import com.iglooclub.nungil.domain.QMember;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +28,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                     .where(qMember.sex.ne(member.getSex()),
                             qMember.id.notIn(acquaintanceMemberIds),
                             qMember.company.ne(member.getCompany()),
-                            qMember.birthdate.after(LocalDateTime.now().minusYears(member.getPreferredAgeEnd())),
-                            qMember.birthdate.before(LocalDateTime.now().minusYears(member.getPreferredAgeStart())))
+                            qMember.birthdate.after(LocalDate.now().minusYears(member.getPreferredAgeEnd())),
+                            qMember.birthdate.before(LocalDate.now().minusYears(member.getPreferredAgeStart())))
                     .fetch();
         }
         else if(member.getDisableCompany().equals(true) && member.getPreferredAgeStart() == null){
@@ -47,8 +47,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                     .from(qMember)
                     .where(qMember.sex.ne(member.getSex()),
                             qMember.id.notIn(acquaintanceMemberIds),
-                            qMember.birthdate.after(LocalDateTime.now().minusYears(member.getPreferredAgeEnd())),
-                            qMember.birthdate.before(LocalDateTime.now().minusYears(member.getPreferredAgeStart())))
+                            qMember.birthdate.after(LocalDate.now().minusYears(member.getPreferredAgeEnd())),
+                            qMember.birthdate.before(LocalDate.now().minusYears(member.getPreferredAgeStart())))
                     .fetch();
         }
         else{
@@ -61,4 +61,8 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         }
 
     }
+
+
+
+
 }
