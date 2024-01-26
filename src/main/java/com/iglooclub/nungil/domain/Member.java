@@ -1,15 +1,17 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
+import com.iglooclub.nungil.dto.ProfileCreateRequest;
+import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
