@@ -1,15 +1,17 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
+import com.iglooclub.nungil.dto.ProfileCreateRequest;
+import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -30,13 +32,14 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private Sex sex;
 
-    private LocalDateTime birthdate;
+    private LocalDate birthdate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    private Boolean disableCompany;
+    @Builder.Default
+    private Boolean disableCompany = true;
 
     @Enumerated(value = EnumType.STRING)
     private AnimalFace animalFace;
@@ -60,30 +63,34 @@ public class Member {
     @Enumerated(value = EnumType.STRING)
     private MarriageState marriageState;
 
-    @Enumerated(value = EnumType.STRING)
-    private FaceDepiction faceDepiction;
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<FaceDepictionAllocation> faceDepictionAllocationList = new ArrayList<>();
 
-    @Enumerated(value = EnumType.STRING)
-    private PersonalityDepiction personalityDepiction;
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
+    @Column(length = 400)
     private String description;
 
     @Builder.Default
     private Integer point = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member")
-    private List<AvailableTimeAllocation> availableTimeList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<AvailableTimeAllocation> availableTimeAllocationList = new ArrayList<>();
 
     @Builder.Default
     private Integer noshowCount = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member")
-    private List<Hobby> hobbyList = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Contact contact;
+    @Builder.Default
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Contact contact = Contact.builder().build();
 
     @Builder.Default
     @OneToMany(mappedBy = "member")
@@ -94,10 +101,12 @@ public class Member {
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<LocationAllocation> locationList;
+    @Builder.Default
+    private List<LocationAllocation> locationList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<MarkerAllocation> markerList;
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<MarkerAllocation> markerAllocationList = new ArrayList<>();
 
     public Member update(String oauthAccess) {
         this.oauthAccess = oauthAccess;
@@ -106,10 +115,159 @@ public class Member {
 
     public Member(){
         this.point = 0;
-        this.availableTimeList = new ArrayList<>();
+        this.disableCompany = true;
+        this.availableTimeAllocationList = new ArrayList<>();
         this.noshowCount = 0;
-        this.hobbyList = new ArrayList<>();
+        this.hobbyAllocationList = new ArrayList<>();
         this.nungilList = new ArrayList<>();
         this.acquaintanceList = new ArrayList<>();
+        this.faceDepictionAllocationList = new ArrayList<>();
+        this.personalityDepictionAllocationList = new ArrayList<>();
+        this.markerAllocationList = new ArrayList<>();
+        this.locationList = new ArrayList<>();
+    }
+
+    // == 비즈니스 로직 == //
+
+    /**
+     * 회원의 프로필 정보를 등록하는 메서드이다.
+     * @param request 프로필 등록 요청 DTO
+     */
+    public void createProfile(ProfileCreateRequest request) {
+
+        this.nickname = request.getNickname();
+        this.sex = request.getSex();
+        this.birthdate = request.getBirthdate();
+        this.contact.update(request.getContactKakao(), request.getContactInstagram());
+        this.animalFace = request.getAnimalFace();
+        this.job = request.getJob();
+        this.height = request.getHeight();
+        this.mbti = request.getMbti();
+        this.marriageState = request.getMarriageState();
+        this.religion = request.getReligion();
+        this.alcohol = request.getAlcohol();
+        this.smoke = request.getSmoke();
+        request.getFaceDepictionList().forEach(this::addFaceDepiction);
+        request.getPersonalityDepictionList().forEach(this::addPersonalityDepiction);
+        this.description = request.getDescription();
+        request.getMarkerList().forEach(this::addMarker);
+        request.getAvailableTimeList().forEach(this::addAvailableTime);
+        request.getHobbyList().forEach(this::addHobby);
+
+    }
+
+    /**
+     * 회원의 프로필 정보를 수정하는 메서드이다.
+     * @param request 프로필 수정 요청 DTO
+     * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingAvailableTimes available_time_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
+     */
+    public void updateProfile(ProfileUpdateRequest request,
+                              List<FaceDepictionAllocation> nonExistingFaceDepictions,
+                              List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
+                              List<MarkerAllocation> nonExistingMarkers,
+                              List<AvailableTimeAllocation> nonExistingAvailableTimes,
+                              List<HobbyAllocation> nonExistingHobbies) {
+
+        this.nickname = request.getNickname();
+        this.sex = request.getSex();
+        this.birthdate = request.getBirthdate();
+        this.contact.update(request.getContactKakao(), request.getContactInstagram());
+        this.animalFace = request.getAnimalFace();
+        this.job = request.getJob();
+        this.height = request.getHeight();
+        this.mbti = request.getMbti();
+        this.marriageState = request.getMarriageState();
+        this.religion = request.getReligion();
+        this.alcohol = request.getAlcohol();
+        this.smoke = request.getSmoke();
+        this.description = request.getDescription();
+
+        this.faceDepictionAllocationList = nonExistingFaceDepictions;
+
+        this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
+
+        this.markerAllocationList = nonExistingMarkers;
+
+        this.availableTimeAllocationList = nonExistingAvailableTimes;
+
+        this.hobbyAllocationList = nonExistingHobbies;
+    }
+
+    // == 조회 로직 == //
+
+    public List<FaceDepiction> getFaceDepictionList() {
+        return this.faceDepictionAllocationList.stream()
+                .map(FaceDepictionAllocation::getFaceDepiction)
+                .collect(Collectors.toList());
+    }
+
+    public List<PersonalityDepiction> getPersonalityDepictionList() {
+        return this.personalityDepictionAllocationList.stream()
+                .map(PersonalityDepictionAllocation::getPersonalityDepiction)
+                .collect(Collectors.toList());
+    }
+
+    public List<Marker> getMarkerList() {
+        return this.markerAllocationList.stream()
+                .map(MarkerAllocation::getMarker)
+                .collect(Collectors.toList());
+    }
+
+    public List<AvailableTime> getAvailableTimeList() {
+        return this.availableTimeAllocationList.stream()
+                .map(AvailableTimeAllocation::getAvailableTime)
+                .collect(Collectors.toList());
+    }
+
+    public List<Hobby> getHobbyList() {
+        return this.hobbyAllocationList.stream()
+                .map(HobbyAllocation::getHobby)
+                .collect(Collectors.toList());
+    }
+
+    // == 연관관계 메서드 == //
+
+    public void addFaceDepiction(FaceDepiction faceDepiction) {
+        FaceDepictionAllocation faceDepictionAllocation = FaceDepictionAllocation.builder()
+                .faceDepiction(faceDepiction)
+                .member(this)
+                .build();
+        this.faceDepictionAllocationList.add(faceDepictionAllocation);
+    }
+
+    public void addPersonalityDepiction(PersonalityDepiction personalityDepiction) {
+        PersonalityDepictionAllocation personalityDepictionAllocation = PersonalityDepictionAllocation.builder()
+                .personalityDepiction(personalityDepiction)
+                .member(this)
+                .build();
+        this.personalityDepictionAllocationList.add(personalityDepictionAllocation);
+    }
+
+    public void addMarker(Marker marker) {
+        MarkerAllocation markerAllocation = MarkerAllocation.builder()
+                .marker(marker)
+                .member(this)
+                .build();
+        this.markerAllocationList.add(markerAllocation);
+    }
+
+    public void addAvailableTime(AvailableTime availableTime) {
+        AvailableTimeAllocation availableTimeAllocation = AvailableTimeAllocation.builder()
+                .availableTime(availableTime)
+                .member(this)
+                .build();
+        this.availableTimeAllocationList.add(availableTimeAllocation);
+    }
+
+    public void addHobby(Hobby hobby) {
+        HobbyAllocation hobbyAllocation = HobbyAllocation.builder()
+                .hobby(hobby)
+                .member(this)
+                .build();
+        this.hobbyAllocationList.add(hobbyAllocation);
     }
 }

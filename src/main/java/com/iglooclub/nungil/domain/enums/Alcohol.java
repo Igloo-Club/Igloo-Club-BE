@@ -6,12 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Alcohol {
-    NONE("마시지 않음"),
-    RARELY("어쩔 수 없을 때만"),
-    OCCASIONAL("가끔 마심"),
-    MODERATE("어느정도 즐김"),
-    ENJOY("좋아하는 편"),
-    HEAVY("술고래"),
+    NONE("비음주(금주)"),
+    OCCASIONAL("사회적 음주"),
+    MODERATE("월 4회 미만"),
+    HEAVY("월 5회 이상"),
     ;
 
     private final String title;

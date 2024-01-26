@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Smoke {
-    SMOKER("흡연"),
-    NON_SMOKER("비흡연"),
-    E_CIGARETTE("전자담배"),
+    NONE("비흡연(금연)"),
+    OCCASIONAL("가끔 흡연"),
+    ALWAYS("매일 흡연"),
     ;
 
     private final String title;

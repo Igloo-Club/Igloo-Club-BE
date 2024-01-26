@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Marker {
+public enum Hobby {
 
     ;
     private final String title;

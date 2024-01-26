@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Religion {
-    NONE("무교"),
+    NONE("종교 없음"),
     CHRISTIANITY("기독교"),
     CATHOLICISM("천주교"),
     BUDDHISM("불교"),
-    OTHER("기타 종교"),
+    OTHER("기타"),
     ;
 
     private final String title;
