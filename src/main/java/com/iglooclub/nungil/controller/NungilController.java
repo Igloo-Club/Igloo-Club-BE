@@ -6,7 +6,6 @@ import com.iglooclub.nungil.service.NungilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +19,7 @@ import java.time.LocalDateTime;
 public class NungilController {
     private final NungilService nungilService;
     @GetMapping
-    public ResponseEntity<NungilResponse> recommendMember(@AuthenticationPrincipal Principal principal){
+    public ResponseEntity<NungilResponse> recommendMember( Principal principal){
         Member recommendedMember = nungilService.recommendMember(principal);
         if (recommendedMember == null){
             //추천할 사용자가 없는 경우

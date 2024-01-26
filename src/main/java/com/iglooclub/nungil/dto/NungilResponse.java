@@ -2,7 +2,7 @@ package com.iglooclub.nungil.dto;
 
 import com.iglooclub.nungil.domain.Contact;
 import com.iglooclub.nungil.domain.FaceDepictionAllocation;
-import com.iglooclub.nungil.domain.Hobby;
+import com.iglooclub.nungil.domain.enums.Hobby;
 import com.iglooclub.nungil.domain.PersonalityDepictionAllocation;
 import com.iglooclub.nungil.domain.enums.*;
 import lombok.Builder;
