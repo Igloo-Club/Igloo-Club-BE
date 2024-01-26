@@ -38,6 +38,8 @@ public class Member {
     @JoinColumn(name = "company_id")
     private Company company;
 
+    private String email;
+
     @Builder.Default
     private Boolean disableCompany = true;
 
