@@ -6,5 +6,5 @@ import com.iglooclub.nungil.domain.Member;
 import java.util.List;
 
 public interface MemberRepositoryCustom {
-    List<Long> findRecommendingMemberIdList(Member member, List<Acquaintance> acquaintanceList);
+    List<Long> findRecommendingMemberIdList(Member member,Boolean isPayed, List<Acquaintance> acquaintanceList);
 }
