@@ -1,13 +1,11 @@
 package com.iglooclub.nungil.controller;
 
+import com.iglooclub.nungil.dto.CompanyEmailRequest;
 import com.iglooclub.nungil.dto.CompanyListResponse;
 import com.iglooclub.nungil.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,5 +23,16 @@ public class CompanyController {
     public ResponseEntity<CompanyListResponse> getCompanyList(@RequestParam String email) {
         CompanyListResponse companyList = companyService.getCompanyList(email);
         return ResponseEntity.ok(companyList);
+    }
+
+    /**
+     * 주어진 회사 이메일로 인증 확인 메일을 보내는 메서드이다.
+     * @param request 회사 이메일이 포함된 DTO
+     */
+    @PostMapping("/email")
+    public ResponseEntity<?> sendAuthEmail(@RequestBody CompanyEmailRequest request) {
+        companyService.sendAuthEmail(request.getEmail());
+
+        return ResponseEntity.ok(null);
     }
 }
