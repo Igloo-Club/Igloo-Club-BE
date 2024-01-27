@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum GlobalErrorResult implements ErrorResult {
 
+    REDIS_NOT_FOUND(HttpStatus.BAD_REQUEST, "The requested data is not available or has expired"),
     UNKNOWN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown Exception"),
     JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Problem occurred when processing json"),
     MESSAGING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Problem occurered when sending email"),

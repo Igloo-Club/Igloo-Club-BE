@@ -276,4 +276,9 @@ public class Member {
                 .build();
         this.hobbyAllocationList.add(hobbyAllocation);
     }
+
+    public void setCompany(String email, Company company) {
+        this.email = email;
+        this.company = company;
+    }
 }

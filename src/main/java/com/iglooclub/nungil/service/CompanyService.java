@@ -3,8 +3,10 @@ package com.iglooclub.nungil.service;
 import com.iglooclub.nungil.domain.Company;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.CompanyListResponse;
+import com.iglooclub.nungil.dto.CompanyVerificationRequest;
 import com.iglooclub.nungil.exception.CompanyErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
+import com.iglooclub.nungil.exception.GlobalErrorResult;
 import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.CompanyRepository;
 import com.iglooclub.nungil.repository.MemberRepository;
@@ -87,6 +89,45 @@ public class CompanyService {
             redisUtil.delete(email);
         }
         redisUtil.set(email, code, Duration.ofMinutes(5));
+    }
+
+    /**
+     * 인증번호를 검증하고, 성공한 경우 회원 정보의 회사 정보를 수정하는 메서드이다.
+     * @param request 인증번호 검증 요청 DTO
+     * @param member 검증을 요청한 회원 엔티티
+     */
+    @Transactional
+    public void verifyAuthCode(CompanyVerificationRequest request, Member member) {
+        String email = request.getEmail();
+        String companyName = request.getCompanyName();
+        String companyDomain = extractDomain(request.getEmail());
+
+        // 사용이 불가능한 회사 도메인인지 확인한다.
+        validateEmail(companyDomain);
+
+        // 이미 가입된 이메일인지 확인한다.
+        checkDuplicatedEmail(email);
+
+        // 요청된 회사 이메일을 키로 갖는 인증번호가 없거나 만료된 경우
+        String foundCode = redisUtil.get(email);
+        if (foundCode == null) {
+            throw new GeneralException(GlobalErrorResult.REDIS_NOT_FOUND);
+        }
+
+        // 주어진 인증번호가 틀린 경우
+        if (!foundCode.equals(request.getCode())) {
+            throw new GeneralException(CompanyErrorResult.WRONG_AUTH_CODE);
+        }
+
+        // 회원 정보에 회사 정보를 추가한다.
+        Company company = companyRepository.findByCompanyNameAndEmail(companyName, companyDomain)
+                .orElse(Company.builder()
+                        .companyName(companyName)
+                        .email(companyDomain)
+                        .build());
+        companyRepository.save(company);
+
+        member.setCompany(email, company);
     }
 
     /**
