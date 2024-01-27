@@ -10,6 +10,7 @@ public enum GlobalErrorResult implements ErrorResult {
 
     UNKNOWN_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Unknown Exception"),
     JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Problem occurred when processing json"),
+    MESSAGING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Problem occurered when sending email"),
     ;
 
     private final HttpStatus httpStatus;
