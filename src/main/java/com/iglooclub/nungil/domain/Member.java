@@ -81,7 +81,7 @@ public class Member {
     private Integer point = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailableTimeAllocation> availableTimeAllocationList = new ArrayList<>();
 
     @Builder.Default
@@ -112,7 +112,7 @@ public class Member {
 
     @Convert(converter = StringListConverter.class)
     @Builder.Default
-    private List<String> yoilList = new ArrayList<>();
+    private List<Yoil> yoilList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
@@ -279,5 +279,17 @@ public class Member {
     public void setCompany(String email, Company company) {
         this.email = email;
         this.company = company;
+    }
+
+    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList) {
+        List<AvailableTimeAllocation> newAvailableTimeAllocationList = availableTimeList.stream()
+                .map(v -> AvailableTimeAllocation.builder().availableTime(v).member(this).build())
+                .collect(Collectors.toList());
+
+        this.location = location;
+        this.yoilList = yoilList;
+
+        this.availableTimeAllocationList.clear();
+        this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
     }
 }

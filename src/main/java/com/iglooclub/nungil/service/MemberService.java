@@ -5,6 +5,7 @@ import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.MemberDetailResponse;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
+import com.iglooclub.nungil.dto.ScheduleUpdateRequest;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -108,5 +110,14 @@ public class MemberService {
         }
 
         member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingHobbies);
+    }
+
+    @Transactional
+    public void updateSchedule(Member member, ScheduleUpdateRequest request) {
+        // 가능한 요일 목록을 [일,월,...,토] 순으로 정렬
+        List<Yoil> sortedYoilList = request.getYoilList();
+        Collections.sort(sortedYoilList);
+
+        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
     }
 }
