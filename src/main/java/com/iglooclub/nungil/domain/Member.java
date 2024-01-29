@@ -109,7 +109,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-
+    private String yoils;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
