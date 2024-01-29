@@ -161,7 +161,6 @@ public class Member {
         request.getPersonalityDepictionList().forEach(this::addPersonalityDepiction);
         this.description = request.getDescription();
         request.getMarkerList().forEach(this::addMarker);
-        request.getAvailableTimeList().forEach(this::addAvailableTime);
         request.getHobbyList().forEach(this::addHobby);
 
     }
@@ -172,14 +171,12 @@ public class Member {
      * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingAvailableTimes available_time_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      */
     public void updateProfile(ProfileUpdateRequest request,
                               List<FaceDepictionAllocation> nonExistingFaceDepictions,
                               List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
                               List<MarkerAllocation> nonExistingMarkers,
-                              List<AvailableTimeAllocation> nonExistingAvailableTimes,
                               List<HobbyAllocation> nonExistingHobbies) {
 
         this.nickname = request.getNickname();
@@ -201,8 +198,6 @@ public class Member {
         this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
 
         this.markerAllocationList = nonExistingMarkers;
-
-        this.availableTimeAllocationList = nonExistingAvailableTimes;
 
         this.hobbyAllocationList = nonExistingHobbies;
     }

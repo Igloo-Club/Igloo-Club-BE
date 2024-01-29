@@ -28,8 +28,6 @@ public class MemberService {
 
     private final MarkerAllocationRepository markerAllocationRepository;
 
-    private final AvailableTimeAllocationRepository availableTimeAllocationRepository;
-
     private final HobbyAllocationRepository hobbyAllocationRepository;
 
     public Member findById(Long memberId) {
@@ -48,7 +46,6 @@ public class MemberService {
         faceDepictionAllocationRepository.deleteAllByMember(member);
         personalityDepictionAllocationRepository.deleteAllByMember(member);
         markerAllocationRepository.deleteAllByMember(member);
-        availableTimeAllocationRepository.deleteAllByMember(member);
         hobbyAllocationRepository.deleteAllByMember(member);
 
         member.createProfile(request);
@@ -75,7 +72,6 @@ public class MemberService {
         faceDepictionAllocationRepository.deleteAllByFaceDepictionNotIn(request.getFaceDepictionList());
         personalityDepictionAllocationRepository.deleteAllByPersonalityDepictionNotIn(request.getPersonalityDepictionList());
         markerAllocationRepository.deleteAllByMarkerNotIn(request.getMarkerList());
-        availableTimeAllocationRepository.deleteAllByAvailableTimeNotIn(request.getAvailableTimeList());
         hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
 
         // == 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. == //
@@ -103,14 +99,6 @@ public class MemberService {
             }
         }
 
-        List<AvailableTimeAllocation> nonExistingAvailableTimes = new ArrayList<>();
-        for (AvailableTime availableTime : request.getAvailableTimeList()) {
-            if (!member.getAvailableTimeList().contains(availableTime)) {
-                nonExistingAvailableTimes.add(AvailableTimeAllocation.builder()
-                        .availableTime(availableTime).member(member).build());
-            }
-        }
-
         List<HobbyAllocation> nonExistingHobbies = new ArrayList<>();
         for (Hobby hobby : request.getHobbyList()) {
             if (!member.getHobbyList().contains(hobby)) {
@@ -119,6 +107,6 @@ public class MemberService {
             }
         }
 
-        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingAvailableTimes, nonExistingHobbies);
+        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingHobbies);
     }
 }
