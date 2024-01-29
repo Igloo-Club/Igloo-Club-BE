@@ -3,6 +3,7 @@ package com.iglooclub.nungil.domain;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
+import com.iglooclub.nungil.util.StringListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -109,7 +110,9 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-    private String yoils;
+    @Convert(converter = StringListConverter.class)
+    @Builder.Default
+    private List<String> yoilList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
@@ -131,6 +134,7 @@ public class Member {
         this.faceDepictionAllocationList = new ArrayList<>();
         this.personalityDepictionAllocationList = new ArrayList<>();
         this.markerAllocationList = new ArrayList<>();
+        this.yoilList = new ArrayList<>();
     }
 
     // == 비즈니스 로직 == //

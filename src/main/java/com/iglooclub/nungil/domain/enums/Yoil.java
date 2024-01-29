@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum yoil {
+public enum Yoil {
     SUN("일요일"),
     MON("월요일"),
     TUE("화요일"),
