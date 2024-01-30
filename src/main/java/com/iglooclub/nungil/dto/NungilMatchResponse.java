@@ -12,6 +12,6 @@ import lombok.Getter;
 @Builder
 public class NungilMatchResponse {
     Yoil yoil;
-    AvailableTime time;
-    Marker marker;
+    String time;
+    String marker;
 }

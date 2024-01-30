@@ -37,11 +37,11 @@ public class Nungil {
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private Marker matchedMarkers;
+    private String matchedMarkers;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private AvailableTime matchedAvailableTimes;
+    private String matchedAvailableTimes;
 
     // == 정적 생성 메서드 == //
     public static Nungil create(Member member, Member receiver, NungilStatus status) {
@@ -65,7 +65,7 @@ public class Nungil {
         this.expiredAt = null;
     }
 
-    public void update(Marker matchedMarkers, AvailableTime matchedAvailableTimes) {
+    public void update(String matchedMarkers, String matchedAvailableTimes) {
         this.matchedMarkers = matchedMarkers;
         this.matchedAvailableTimes = matchedAvailableTimes;
     }

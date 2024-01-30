@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface NungilRepository extends JpaRepository<Nungil, Long> {
     Slice<Nungil> findAllByMemberAndStatus(PageRequest request, Member member, NungilStatus status);
     Optional<Nungil> findById(Long nungilId);
-    Optional<Nungil> findFirstByReceiver(Member receiver);
+    Optional<Nungil> findFirstByMemberAndReceiver(Member member, Member receiver);
     List<Nungil> findAllByMemberAndReceiverAndStatus(Member member,Member receiver,NungilStatus status);
 
 }

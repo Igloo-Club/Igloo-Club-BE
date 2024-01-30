@@ -176,7 +176,6 @@ public class NungilService {
 
         Nungil receivedNungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
-
         //눈길이 잘못된 상태일 시 에러 발생
         if(!receivedNungil.getStatus().equals(NungilStatus.RECEIVED)){
             throw new GeneralException(NungilErrorResult.NUNGIL_WRONG_STATUS);
@@ -187,8 +186,9 @@ public class NungilService {
         receivedNungil.setExpiredAtNull();
 
         //수취자의 눈길 조회 후 MATCHED 상태로 변경
+        Member member = receivedNungil.getMember();
         Member sender = receivedNungil.getReceiver();
-        Optional<Nungil> optionalNungil = nungilRepository.findFirstByReceiver(sender);
+        Optional<Nungil> optionalNungil = nungilRepository.findFirstByMemberAndReceiver(sender, member);
         if(optionalNungil.isEmpty()){
             throw new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND);
         }
@@ -196,8 +196,16 @@ public class NungilService {
         sentNungil.setStatus(NungilStatus.MATCHED);
         receivedNungil.setExpiredAtNull();
 
-        Member member = receivedNungil.getMember();
-        receivedNungil.update(findCommonMarkers(member, sender).get(0), findCommonAvailableTimes(member, sender).get(0));
+
+        String marker = null;
+        String time = null;
+        if(!findCommonMarkers(member, sender).isEmpty()){
+            marker = findCommonMarkers(member, sender).get(0).toString();
+        }
+        if(!findCommonAvailableTimes(member, sender).isEmpty()){
+            time = findCommonAvailableTimes(member, sender).get(0).toString();
+        }
+        receivedNungil.update(marker, time);
     }
 
     /**
