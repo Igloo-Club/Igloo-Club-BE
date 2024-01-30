@@ -1,5 +1,6 @@
 package com.iglooclub.nungil.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
@@ -112,7 +113,7 @@ public class Member {
 
     @Convert(converter = StringListConverter.class)
     @Builder.Default
-    private List<String> yoilList = new ArrayList<>();
+    private List<Yoil> yoilList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default

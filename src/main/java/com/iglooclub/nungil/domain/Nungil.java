@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Nungil {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +46,6 @@ public class Nungil {
                 .member(member)
                 .receiver(receiver)
                 .createdAt(LocalDateTime.now())
-                .expiredAt(LocalDateTime.now().plusDays(7))
                 .status(status)
                 .build();
     }
