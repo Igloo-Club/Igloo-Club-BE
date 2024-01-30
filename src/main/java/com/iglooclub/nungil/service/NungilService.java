@@ -5,6 +5,8 @@ import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.Nungil;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
 import com.iglooclub.nungil.dto.*;
+import com.iglooclub.nungil.exception.GeneralException;
+import com.iglooclub.nungil.exception.NungilErrorResult;
 import com.iglooclub.nungil.repository.AcquaintanceRepository;
 import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.NungilRepository;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -80,12 +83,12 @@ public class NungilService {
      * @request NungilRequest 슬라이스 요청 정보
      * @return NungilPageResponse 슬라이스 정보 반환
      */
-    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Principal principal, NungilRequest request) {
+    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Principal principal, NungilRequest request, NungilStatus status) {
         Member member = getMember(principal);
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(),Sort.by("createdAt").descending());
 
         // Nungil 엔티티를 데이터베이스에서 조회
-        Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, request.getStatus());
+        Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, status);
 
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
@@ -103,7 +106,20 @@ public class NungilService {
         return new SliceImpl<>(nungilResponses, pageRequest, nungilSlice.hasNext());
     }
 
+    /**
+     * 개별 눈길 정보를 조회하는 api입니다
+     *
+     * @request NungilDetailRequest 특정 눈길 요청 정보
+     * @return nungilResponse 특정 눈길 정보
+     */
+    public NungilResponse getNungilDetail(NungilDetailRequest request){
+        Long nungilId = request.getNungilId();
 
+        Nungil nungil = nungilRepository.findById(nungilId)
+                .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
+        Member member = nungil.getReceiver();
+        return convertToNungilResponse(member);
+    }
 
 
 
@@ -128,11 +144,10 @@ public class NungilService {
                 .job(member.getJob())
                 .height(member.getHeight())
                 .marriageState(member.getMarriageState())
-                .faceDepictionAllocationList(member.getFaceDepictionAllocationList())
-                .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationList())
+                .faceDepictionAllocationList(member.getFaceDepictionAllocationsAsString())
+                .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationAsString())
                 .description(member.getDescription())
-                .hobbyList(member.getHobbyList())
-                .contact(member.getContact())
+                .hobbyAllocationList(member.getHobbyAllocationAsString())
                 .build();
     }
 }

@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -41,13 +42,12 @@ public class NungilResponse {
 
     private MarriageState marriageState;
 
-    private List<FaceDepictionAllocation> faceDepictionAllocationList;
+    private String faceDepictionAllocationList;
 
-    private List<PersonalityDepictionAllocation> personalityDepictionAllocationList;
+    private String personalityDepictionAllocationList;
 
     private String description;
 
-    private List<Hobby> hobbyList;
+    private String hobbyAllocationList;
 
-    private Contact contact;
 }

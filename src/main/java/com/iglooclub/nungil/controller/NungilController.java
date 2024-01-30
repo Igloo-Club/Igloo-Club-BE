@@ -1,10 +1,8 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.dto.NungilSliceResponse;
-import com.iglooclub.nungil.dto.NungilRequest;
-import com.iglooclub.nungil.dto.NungilResponse;
-import com.iglooclub.nungil.dto.ProfileRecommendRequest;
+import com.iglooclub.nungil.domain.enums.NungilStatus;
+import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.NungilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -31,35 +29,18 @@ public class NungilController {
     }
 
     @GetMapping("/nungils")
-    public ResponseEntity<Slice<NungilSliceResponse>> getNungilsByMemberAndStatus(Principal principal, @RequestBody NungilRequest request){
-        Slice<NungilSliceResponse> nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(principal, request);
+    public ResponseEntity<Slice<NungilSliceResponse>> getNungilsByMemberAndStatus(Principal principal, @RequestBody NungilRequest request, @RequestParam NungilStatus status){
+        Slice<NungilSliceResponse> nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(principal, request, status);
         return ResponseEntity.ok(nungilPageResponses);
     }
 
-    //Member 엔티티의 데이터를 NungilResponseDTO로 변환하는 메서드
-    private NungilResponse convertToNungilResponse(Member member) {
-         return NungilResponse.builder()
-                 .id(member.getId())
-                 .location(member.getLocation())
-                 .sex(member.getSex())
-                 .age(LocalDateTime.now().minusYears(member.getBirthdate().getYear()).getYear())
-                 .companyName(member.getCompany().getCompanyName())
-                 .nickname(member.getNickname())
-                 .animalFace(member.getAnimalFace())
-                 .alcohol(member.getAlcohol())
-                 .smoke(member.getSmoke())
-                 .religion(member.getReligion())
-                 .mbti(member.getMbti())
-                 .job(member.getJob())
-                 .height(member.getHeight())
-                 .marriageState(member.getMarriageState())
-                 .faceDepictionAllocationList(member.getFaceDepictionAllocationList())
-                 .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationList())
-                 .description(member.getDescription())
-                 .hobbyList(member.getHobbyList())
-                 .contact(member.getContact())
-                 .build();
+
+    @GetMapping("/detail")
+    public ResponseEntity<NungilResponse> getNungilDetail(Principal principal, @RequestBody NungilDetailRequest request){
+        NungilResponse nungilResponse = nungilService.getNungilDetail(request);
+        return ResponseEntity.ok(nungilResponse);
     }
+
 
 
 }
