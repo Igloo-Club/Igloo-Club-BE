@@ -80,8 +80,9 @@ public class NungilService {
     /**
      * 요청 눈길상태의 프로필을 전체 조회하는 api입니다
      *
-     * @request resqeust 슬라이스 요청 정보
-     * @request status 요청 눈길 상태
+     * @param  page 페이지 정보
+     * @param size 페이지 정보
+     * @param status 요청 눈길 상태
      *
      * @return NungilPageResponse 슬라이스 정보 반환
      */
@@ -109,9 +110,9 @@ public class NungilService {
     }
 
     /**
-     * 개별 눈길 정보를 조회하는 api입니다
+     * 특정 눈길 정보를 조회하는 api입니다
      *
-     * @request NungilDetailRequest 특정 눈길 요청 정보
+     * @param nungilId 눈길 id
      * @return nungilResponse 특정 눈길 정보
      */
     public NungilResponse getNungilDetail(Long nungilId){
@@ -126,10 +127,35 @@ public class NungilService {
      * member에게 recommend status의 눈길을 SENT로 수정하며
      * receiver에게 status가 RECEIVED인 눈길을 생성합니다
      *
-     * @request NungilDetailRequest 특정 눈길 요청 정보
+     * @param nungilId 눈길 id
      * @return nungilResponse 특정 눈길 정보
      */
+    @Transactional
+    public void sendNungil(Principal principal, Long nungilId){
+        Member member = getMember(principal);
+        Nungil nungil = nungilRepository.findById(nungilId)
+                .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
+        Member receiver = nungil.getReceiver();
 
+        //사용자의 눈길 상태를 SENT, 만료일을 일주일 뒤로 설정
+        nungil.setStatus(NungilStatus.SENT);
+        nungil.setExpiredAt7DaysAfter();
+
+        //눈길 받는 사용자 Acquaintance 객체 생성 및 저장
+        List<Acquaintance> acquaintanceList = acquaintanceRepository.findByMember(receiver);
+
+        Acquaintance newAcquaintance = Acquaintance.builder()
+                .member(receiver)
+                .acquaintanceMember(member)
+                .build();
+
+        acquaintanceRepository.save(newAcquaintance);
+
+        //눈길 받는 사용자 눈길 객체 생성 및 저장
+        Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
+        newNungil.setExpiredAt7DaysAfter();
+        nungilRepository.save(newNungil);
+    }
 
 
 

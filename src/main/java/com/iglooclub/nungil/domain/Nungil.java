@@ -50,6 +50,14 @@ public class Nungil {
                 .build();
     }
 
+    public void setStatus(NungilStatus status){
+        this.status = status;
+    }
+
+    public void setExpiredAt7DaysAfter(){
+        this.expiredAt = LocalDateTime.now().plusDays(7);
+    }
+
     public void update(String matchedMarkers, String matchedAvailableTimes) {
         this.matchedMarkers = matchedMarkers;
         this.matchedAvailableTimes = matchedAvailableTimes;

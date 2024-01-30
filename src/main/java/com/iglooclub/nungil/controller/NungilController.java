@@ -41,6 +41,12 @@ public class NungilController {
         return ResponseEntity.ok(nungilResponse);
     }
 
+    @PostMapping("/send")
+    public ResponseEntity<?> sendNungil(Principal principal, @RequestParam Long nungilId){
+        nungilService.sendNungil(principal, nungilId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 
 }
