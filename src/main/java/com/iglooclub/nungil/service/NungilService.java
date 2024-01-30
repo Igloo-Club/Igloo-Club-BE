@@ -80,12 +80,14 @@ public class NungilService {
     /**
      * 요청 눈길상태의 프로필을 전체 조회하는 api입니다
      *
-     * @request NungilRequest 슬라이스 요청 정보
+     * @request resqeust 슬라이스 요청 정보
+     * @request status 요청 눈길 상태
+     *
      * @return NungilPageResponse 슬라이스 정보 반환
      */
-    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Principal principal, NungilRequest request, NungilStatus status) {
+    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Principal principal, NungilStatus status, int page, int size) {
         Member member = getMember(principal);
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(),Sort.by("createdAt").descending());
+        PageRequest pageRequest = PageRequest.of(page, size,Sort.by("createdAt").descending());
 
         // Nungil 엔티티를 데이터베이스에서 조회
         Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, status);
@@ -112,14 +114,22 @@ public class NungilService {
      * @request NungilDetailRequest 특정 눈길 요청 정보
      * @return nungilResponse 특정 눈길 정보
      */
-    public NungilResponse getNungilDetail(NungilDetailRequest request){
-        Long nungilId = request.getNungilId();
-
+    public NungilResponse getNungilDetail(Long nungilId){
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member member = nungil.getReceiver();
         return convertToNungilResponse(member);
     }
+
+    /**
+     * 눈길을 보내는 api입니다
+     * member에게 recommend status의 눈길을 SENT로 수정하며
+     * receiver에게 status가 RECEIVED인 눈길을 생성합니다
+     *
+     * @request NungilDetailRequest 특정 눈길 요청 정보
+     * @return nungilResponse 특정 눈길 정보
+     */
+
 
 
 

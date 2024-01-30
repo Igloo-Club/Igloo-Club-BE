@@ -29,15 +29,15 @@ public class NungilController {
     }
 
     @GetMapping("/nungils")
-    public ResponseEntity<Slice<NungilSliceResponse>> getNungilsByMemberAndStatus(Principal principal, @RequestBody NungilRequest request, @RequestParam NungilStatus status){
-        Slice<NungilSliceResponse> nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(principal, request, status);
+    public ResponseEntity<Slice<NungilSliceResponse>> getNungilsByMemberAndStatus(Principal principal, @RequestParam NungilStatus status, @RequestParam int page, @RequestParam int size){
+        Slice<NungilSliceResponse> nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(principal, status, page, size);
         return ResponseEntity.ok(nungilPageResponses);
     }
 
 
     @GetMapping("/detail")
-    public ResponseEntity<NungilResponse> getNungilDetail(Principal principal, @RequestBody NungilDetailRequest request){
-        NungilResponse nungilResponse = nungilService.getNungilDetail(request);
+    public ResponseEntity<NungilResponse> getNungilDetail(Principal principal, @RequestParam Long nungilId){
+        NungilResponse nungilResponse = nungilService.getNungilDetail(nungilId);
         return ResponseEntity.ok(nungilResponse);
     }
 
