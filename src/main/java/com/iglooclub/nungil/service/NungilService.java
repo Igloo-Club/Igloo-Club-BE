@@ -13,6 +13,7 @@ import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.NungilRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -227,6 +228,38 @@ public class NungilService {
                 .build();
         return response;
     }
+
+    /**
+     * 매 시간 expireAt이 초과된 눈길을 삭제합니다
+     *
+     *
+     *
+     */
+    @Scheduled(cron = "0 0 * * * *") // 매시 정각에 실행
+    @Transactional
+    public void deleteExpiredNungils() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Nungil> expiredNungils = nungilRepository.findByExpiredAtBefore(now);
+        for (Nungil nungil : expiredNungils) {
+            nungilRepository.delete(nungil);
+        }
+    }
+    /**
+     * 매일 오전 11시에 추천된 눈길을 삭제합니다
+     *
+     *
+     *
+     */
+    @Scheduled(cron = "0 0 11 * * *") // 매일 오전 11시에 실행
+    @Transactional
+    public void deleteRecommendedNungils() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Nungil> recommendedNungils = nungilRepository.findByStatus(NungilStatus.RECOMMENDED);
+        for (Nungil nungil : recommendedNungils) {
+            nungilRepository.delete(nungil);
+        }
+    }
+
 
     private Member getMember(Principal principal) {
         return memberService.findById(Long.parseLong(principal.getName()));

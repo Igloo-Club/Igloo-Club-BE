@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,5 +16,7 @@ public interface NungilRepository extends JpaRepository<Nungil, Long> {
     Optional<Nungil> findById(Long nungilId);
     Optional<Nungil> findFirstByMemberAndReceiver(Member member, Member receiver);
     List<Nungil> findAllByMemberAndReceiverAndStatus(Member member,Member receiver,NungilStatus status);
+    List<Nungil> findByExpiredAtBefore(LocalDateTime dateTime);
+    List<Nungil> findByStatus(NungilStatus status);
 
 }
