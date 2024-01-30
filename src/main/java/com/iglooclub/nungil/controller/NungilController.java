@@ -57,6 +57,12 @@ public class NungilController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/match")
+    public ResponseEntity<NungilMatchResponse> getMatchedNungil(@RequestParam Long nungilId){
+        NungilMatchResponse response = nungilService.getMatchedNungil(nungilId);
+        return ResponseEntity.ok(response);
+    }
+
 
 
     private Member getMember(Principal principal) {

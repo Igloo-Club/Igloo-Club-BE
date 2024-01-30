@@ -1,11 +1,10 @@
 package com.iglooclub.nungil.service;
 
-import com.iglooclub.nungil.domain.Acquaintance;
-import com.iglooclub.nungil.domain.AvailableTimeAllocation;
-import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.domain.Nungil;
+import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.AvailableTime;
+import com.iglooclub.nungil.domain.enums.Marker;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
+import com.iglooclub.nungil.domain.enums.Yoil;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.NungilErrorResult;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -167,7 +168,7 @@ public class NungilService {
     /**
      * 눈길을 매칭하는 api입니다
      *
-     * @param member 사용자 객체
+     *
      * @param nungilId 눈길 id
      */
     @Transactional
@@ -193,6 +194,24 @@ public class NungilService {
         Nungil sentNungil = optionalNungil.get();
         sentNungil.setStatus(NungilStatus.MATCHED);
         receivedNungil.setExpiredAtNull();
+    }
+
+    /**
+     * 공통 매청 정보를 조회하는 api입니다
+     *
+     *
+     * @param nungilId 눈길 id
+     * @response nungilMatchResponse 눈길 매칭 정보
+     */
+    public NungilMatchResponse getMatchedNungil(Long nungilId){
+        Member member = nungilRepository.findById(nungilId).get().getMember();
+        Member receiver = nungilRepository.findById(nungilId).get().getReceiver();
+        NungilMatchResponse response = NungilMatchResponse.builder()
+                .yoil(findCommonYoil(member, receiver))
+                .marker(findCommonMarkers(member, receiver).get(0))
+                .time(findCommonAvailableTimes(member, receiver).get(0))
+                .build();
+        return response;
     }
 
     private Member getMember(Principal principal) {
@@ -222,6 +241,70 @@ public class NungilService {
                 .hobbyAllocationList(member.getHobbyAllocationAsString())
                 .build();
     }
+    //두 사용자의 공통 시간을 추출
+    public List<AvailableTime> findCommonAvailableTimes(Member member1, Member member2) {
+        List<AvailableTimeAllocation> list1 = member1.getAvailableTimeAllocationList();
+        List<AvailableTimeAllocation> list2 = member2.getAvailableTimeAllocationList();
 
+        Set<AvailableTime> timesSet1 = list1.stream()
+                .map(AvailableTimeAllocation::getAvailableTime)
+                .collect(Collectors.toSet());
 
+        Set<AvailableTime> timesSet2 = list2.stream()
+                .map(AvailableTimeAllocation::getAvailableTime)
+                .collect(Collectors.toSet());
+
+        // 교집합 찾기
+        timesSet1.retainAll(timesSet2);
+
+        return new ArrayList<>(timesSet1);
+    }
+    //두 사용자의 공통 마커를 추출
+    public List<Marker> findCommonMarkers(Member member1, Member member2) {
+        Set<Marker> markerSet1 = member1.getMarkerAllocationList().stream()
+                .map(MarkerAllocation::getMarker)
+                .collect(Collectors.toSet());
+
+        Set<Marker> markerSet2 = member2.getMarkerAllocationList().stream()
+                .map(MarkerAllocation::getMarker)
+                .collect(Collectors.toSet());
+
+        // 교집합 찾기
+        markerSet1.retainAll(markerSet2);
+
+        return new ArrayList<>(markerSet1);
+    }
+
+    public Yoil findCommonYoil(Member member1, Member member2) {
+        List<Yoil> list1 = member1.getYoilList();
+        List<Yoil> list2 = member2.getYoilList();
+        Set<DayOfWeek> set1 = EnumSet.noneOf(DayOfWeek.class);
+        for (Yoil yoil : list1) {
+            set1.add(yoil.getDayOfWeek());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        boolean isAfter11AM = now.getHour() >= 11;
+
+        for (Yoil yoil : list2) {
+            if (set1.contains(yoil.getDayOfWeek())) {
+                if (isAfter11AM) {
+                    return findNextYoil(yoil, now);
+                } else {
+                    return yoil;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Yoil findNextYoil(Yoil yoil, LocalDateTime now) {
+        DayOfWeek today = now.getDayOfWeek();
+        int daysUntilNext = (7 + yoil.getDayOfWeek().getValue() - today.getValue()) % 7;
+        if (daysUntilNext == 0) {
+            daysUntilNext = 7;
+        }
+        return Yoil.values()[(today.getValue() + daysUntilNext - 1) % 7];
+    }
 }
