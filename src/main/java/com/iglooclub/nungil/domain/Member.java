@@ -1,6 +1,5 @@
 package com.iglooclub.nungil.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
@@ -82,7 +81,7 @@ public class Member {
     private Integer point = 0;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvailableTimeAllocation> availableTimeAllocationList = new ArrayList<>();
 
     @Builder.Default
@@ -162,7 +161,6 @@ public class Member {
         request.getPersonalityDepictionList().forEach(this::addPersonalityDepiction);
         this.description = request.getDescription();
         request.getMarkerList().forEach(this::addMarker);
-        request.getAvailableTimeList().forEach(this::addAvailableTime);
         request.getHobbyList().forEach(this::addHobby);
 
     }
@@ -173,14 +171,12 @@ public class Member {
      * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingAvailableTimes available_time_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      */
     public void updateProfile(ProfileUpdateRequest request,
                               List<FaceDepictionAllocation> nonExistingFaceDepictions,
                               List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
                               List<MarkerAllocation> nonExistingMarkers,
-                              List<AvailableTimeAllocation> nonExistingAvailableTimes,
                               List<HobbyAllocation> nonExistingHobbies) {
 
         this.nickname = request.getNickname();
@@ -202,8 +198,6 @@ public class Member {
         this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
 
         this.markerAllocationList = nonExistingMarkers;
-
-        this.availableTimeAllocationList = nonExistingAvailableTimes;
 
         this.hobbyAllocationList = nonExistingHobbies;
     }
@@ -287,24 +281,15 @@ public class Member {
         this.company = company;
     }
 
+    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList) {
+        List<AvailableTimeAllocation> newAvailableTimeAllocationList = availableTimeList.stream()
+                .map(v -> AvailableTimeAllocation.builder().availableTime(v).member(this).build())
+                .collect(Collectors.toList());
 
-    // List를 String으로 변환하는 메서드
-    public String getFaceDepictionAllocationsAsString() {
-        return faceDepictionAllocationList.stream()
-                .map(FaceDepictionAllocation::getFaceDepiction)
-                .map(FaceDepiction::getTitle)
-                .collect(Collectors.joining(", "));
-    }
-    public String getPersonalityDepictionAllocationAsString() {
-        return personalityDepictionAllocationList.stream()
-                .map(PersonalityDepictionAllocation::getPersonalityDepiction)
-                .map(PersonalityDepiction::getTitle)
-                .collect(Collectors.joining(", "));
-    }
-    public String getHobbyAllocationAsString() {
-        return hobbyAllocationList.stream()
-                .map(HobbyAllocation::getHobby)
-                .map(Hobby::getTitle)
-                .collect(Collectors.joining(", "));
+        this.location = location;
+        this.yoilList = yoilList;
+
+        this.availableTimeAllocationList.clear();
+        this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
     }
 }

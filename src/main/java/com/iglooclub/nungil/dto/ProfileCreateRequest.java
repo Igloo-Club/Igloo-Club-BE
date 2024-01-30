@@ -71,7 +71,5 @@ public class ProfileCreateRequest {
 
     private List<Marker> markerList;
 
-    private List<AvailableTime> availableTimeList;
-
     private List<Hobby> hobbyList;
 }

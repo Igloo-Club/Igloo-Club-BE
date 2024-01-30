@@ -4,8 +4,10 @@ import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.MemberDetailResponse;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
+import com.iglooclub.nungil.dto.ScheduleUpdateRequest;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +38,13 @@ public class MemberController {
         Member member = getMember(principal);
         memberService.updateProfile(member, request);
         return ResponseEntity.ok(null);
+    }
+
+    @PatchMapping("/api/member/schedule")
+    public ResponseEntity<?> updateSchedule(@RequestBody ScheduleUpdateRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.updateSchedule(member, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private Member getMember(Principal principal) {
