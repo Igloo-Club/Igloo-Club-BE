@@ -1,4 +1,4 @@
-package com.iglooclub.nungil.util.sms;
+package com.iglooclub.nungil.util;
 
 import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CoolSMS implements SmsStrategy {
+public class CoolSMS {
     private final DefaultMessageService messageService;
 
     private final String sender;
