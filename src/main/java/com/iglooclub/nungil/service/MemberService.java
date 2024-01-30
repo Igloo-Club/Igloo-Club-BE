@@ -2,20 +2,22 @@ package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
-import com.iglooclub.nungil.dto.MemberDetailResponse;
-import com.iglooclub.nungil.dto.ProfileCreateRequest;
-import com.iglooclub.nungil.dto.ProfileUpdateRequest;
-import com.iglooclub.nungil.dto.ScheduleUpdateRequest;
+import com.iglooclub.nungil.dto.*;
+import com.iglooclub.nungil.exception.CompanyErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
+import com.iglooclub.nungil.exception.GlobalErrorResult;
 import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.*;
+import com.iglooclub.nungil.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -31,6 +33,10 @@ public class MemberService {
     private final MarkerAllocationRepository markerAllocationRepository;
 
     private final HobbyAllocationRepository hobbyAllocationRepository;
+
+    private final StringRedisUtil redisUtil;
+
+    private final CoolSMS coolSMS;
 
     public Member findById(Long memberId) {
         return memberRepository.findById(memberId)
@@ -119,5 +125,68 @@ public class MemberService {
         Collections.sort(sortedYoilList);
 
         member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
+    }
+
+    /**
+     * 인증번호를 생성하고, 주어진 전화번호로 인증문자를 전송하는 메서드이다.
+     * @param request 인증 요청 DTO
+     */
+    public void sendAuthMessage(MessageAuthenticationRequest request) {
+
+        String phoneNumber = request.getPhoneNumber();
+
+        // 이미 가입된 이메일인지 확인한다.
+        checkDuplicatedPhoneNumber(phoneNumber);
+
+        // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
+        String code = RandomStringUtil.numeric(6);
+        String text = "[눈길] 인증번호 [" + code + "]를 입력해주세요";
+
+        // 이메일을 발송한다.
+        coolSMS.send(phoneNumber, text);
+
+        // redis에 이메일을 키로 하여 인증번호를 저장한다.
+        if (redisUtil.exists(phoneNumber)) {
+            redisUtil.delete(phoneNumber);
+        }
+        redisUtil.set(phoneNumber, code, Duration.ofMinutes(5));
+    }
+
+    /**
+     * 인증번호를 검증하고, 성공한 경우 회원 정보의 전화번호 정보를 수정하는 메서드이다.
+     * @param request 인증번호 검증 요청 DTO
+     * @param member 검증을 요청한 회원 엔티티
+     */
+    @Transactional
+    public void verifyAuthMessage(MessageVerificationRequest request, Member member) {
+        String phoneNumber = request.getPhoneNumber();
+
+        // 이미 가입된 이메일인지 확인한다.
+        checkDuplicatedPhoneNumber(phoneNumber);
+
+        // 요청된 전화번호를 키로 갖는 인증번호가 없거나 만료된 경우
+        String foundCode = redisUtil.get(phoneNumber);
+        if (foundCode == null) {
+            throw new GeneralException(GlobalErrorResult.REDIS_NOT_FOUND);
+        }
+
+        // 주어진 인증번호가 틀린 경우
+        if (!foundCode.equals(request.getCode())) {
+            throw new GeneralException(CompanyErrorResult.WRONG_AUTH_CODE);
+        }
+
+        // 회원 정보에 전화번호 정보를 추가한다.
+        member.updatePhoneNumber(phoneNumber);
+    }
+
+    /**
+     * 주어진 전화번호를 사용하는 회원이 존재하는지 확인하고, 이미 존재한다면 예외를 발생시키는 메서드이다.
+     * @param phoneNumber 회원 전화번호
+     */
+    private void checkDuplicatedPhoneNumber(String phoneNumber) {
+        Optional<Member> member = memberRepository.findByPhoneNumber(phoneNumber);
+        if (member.isPresent()) {
+            throw new GeneralException(MemberErrorResult.DUPLICATED_PHONENUMBER);
+        }
     }
 }

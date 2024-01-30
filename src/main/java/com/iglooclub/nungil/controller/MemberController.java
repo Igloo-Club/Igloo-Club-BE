@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.dto.MemberDetailResponse;
-import com.iglooclub.nungil.dto.ProfileCreateRequest;
-import com.iglooclub.nungil.dto.ProfileUpdateRequest;
-import com.iglooclub.nungil.dto.ScheduleUpdateRequest;
+import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,6 +41,19 @@ public class MemberController {
     public ResponseEntity<?> updateSchedule(@RequestBody ScheduleUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
         memberService.updateSchedule(member, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/api/member/phone/authentication")
+    public ResponseEntity<?> sendAuthMessage(@RequestBody MessageAuthenticationRequest request) {
+        memberService.sendAuthMessage(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/api/member/phone/verification")
+    public ResponseEntity<?> verifyAuthMessage(@RequestBody MessageVerificationRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.verifyAuthMessage(request, member);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

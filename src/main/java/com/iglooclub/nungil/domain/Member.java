@@ -30,6 +30,8 @@ public class Member {
 
     private String nickname;
 
+    private String phoneNumber;
+
     @Enumerated(value = EnumType.STRING)
     private Sex sex;
 
@@ -291,5 +293,9 @@ public class Member {
 
         this.availableTimeAllocationList.clear();
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
+    }
+
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
