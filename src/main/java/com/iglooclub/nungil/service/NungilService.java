@@ -1,8 +1,10 @@
 package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.Acquaintance;
+import com.iglooclub.nungil.domain.AvailableTimeAllocation;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.Nungil;
+import com.iglooclub.nungil.domain.enums.AvailableTime;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.GeneralException;
@@ -17,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -43,8 +43,7 @@ public class NungilService {
      * @return nungilResponse 추천되는 사용자 눈길 정보
      */
     @Transactional
-    public NungilResponse recommendMember(Principal principal, ProfileRecommendRequest request){
-        Member member = getMember(principal);
+    public NungilResponse recommendMember(Member member, ProfileRecommendRequest request){
         List<Acquaintance> acquaintanceList = acquaintanceRepository.findByMember(member);
         for(Acquaintance ac: acquaintanceList){
             System.out.println("지인 :"+ ac);
@@ -86,8 +85,7 @@ public class NungilService {
      *
      * @return NungilPageResponse 슬라이스 정보 반환
      */
-    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Principal principal, NungilStatus status, int page, int size) {
-        Member member = getMember(principal);
+    public Slice<NungilSliceResponse> getNungilSliceByMemberAndStatus(Member member, NungilStatus status, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size,Sort.by("createdAt").descending());
 
         // Nungil 엔티티를 데이터베이스에서 조회
@@ -131,11 +129,20 @@ public class NungilService {
      * @return nungilResponse 특정 눈길 정보
      */
     @Transactional
-    public void sendNungil(Principal principal, Long nungilId){
-        Member member = getMember(principal);
+    public void sendNungil(Member member, Long nungilId){
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member receiver = nungil.getReceiver();
+
+        if(!nungil.getStatus().equals(NungilStatus.RECOMMENDED)){
+            throw new GeneralException(NungilErrorResult.NUNGIL_WRONG_STATUS);
+        }
+
+        //이미 눈길을 보냈을 시 중단
+        List<Nungil> receiverNungilList = nungilRepository.findAllByMemberAndReceiverAndStatus(receiver, member, NungilStatus.RECEIVED);
+        if(receiverNungilList.size() > 0){
+            return ;
+        }
 
         //사용자의 눈길 상태를 SENT, 만료일을 일주일 뒤로 설정
         nungil.setStatus(NungilStatus.SENT);
@@ -157,7 +164,36 @@ public class NungilService {
         nungilRepository.save(newNungil);
     }
 
+    /**
+     * 눈길을 매칭하는 api입니다
+     *
+     * @param member 사용자 객체
+     * @param nungilId 눈길 id
+     */
+    @Transactional
+    public void matchNungil(Long nungilId){
+        Nungil receivedNungil = nungilRepository.findById(nungilId)
+                .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
 
+        //눈길이 잘못된 상태일 시 에러 발생
+        if(!receivedNungil.getStatus().equals(NungilStatus.RECEIVED)){
+            throw new GeneralException(NungilErrorResult.NUNGIL_WRONG_STATUS);
+        }
+
+        //사용자의 눈길을 MATCHED 상태로 변경
+        receivedNungil.setStatus(NungilStatus.MATCHED);
+        receivedNungil.setExpiredAtNull();
+
+        //수취자의 눈길 조회 후 MATCHED 상태로 변경
+        Member sender = receivedNungil.getReceiver();
+        Optional<Nungil> optionalNungil = nungilRepository.findFirstByReceiver(sender);
+        if(optionalNungil.isEmpty()){
+            throw new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND);
+        }
+        Nungil sentNungil = optionalNungil.get();
+        sentNungil.setStatus(NungilStatus.MATCHED);
+        receivedNungil.setExpiredAtNull();
+    }
 
     private Member getMember(Principal principal) {
         return memberService.findById(Long.parseLong(principal.getName()));
@@ -186,4 +222,6 @@ public class NungilService {
                 .hobbyAllocationList(member.getHobbyAllocationAsString())
                 .build();
     }
+
+
 }

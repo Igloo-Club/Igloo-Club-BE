@@ -58,6 +58,10 @@ public class Nungil {
         this.expiredAt = LocalDateTime.now().plusDays(7);
     }
 
+    public void setExpiredAtNull(){
+        this.expiredAt = null;
+    }
+
     public void update(String matchedMarkers, String matchedAvailableTimes) {
         this.matchedMarkers = matchedMarkers;
         this.matchedAvailableTimes = matchedAvailableTimes;
