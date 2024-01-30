@@ -13,9 +13,6 @@ import javax.validation.constraints.NotNull;
 public class NungilRequest {
 
     @NotNull
-    private NungilStatus status;
-
-    @NotNull
     int page;
 
     @NotNull
