@@ -173,6 +173,7 @@ public class NungilService {
      */
     @Transactional
     public void matchNungil(Long nungilId){
+
         Nungil receivedNungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
 
@@ -194,6 +195,9 @@ public class NungilService {
         Nungil sentNungil = optionalNungil.get();
         sentNungil.setStatus(NungilStatus.MATCHED);
         receivedNungil.setExpiredAtNull();
+
+        Member member = receivedNungil.getMember();
+        receivedNungil.update(findCommonMarkers(member, sender).get(0), findCommonAvailableTimes(member, sender).get(0));
     }
 
     /**
@@ -206,10 +210,12 @@ public class NungilService {
     public NungilMatchResponse getMatchedNungil(Long nungilId){
         Member member = nungilRepository.findById(nungilId).get().getMember();
         Member receiver = nungilRepository.findById(nungilId).get().getReceiver();
+        Optional<Nungil> optionalNungil = nungilRepository.findById(nungilId);
+        Nungil nungil = optionalNungil.get();
         NungilMatchResponse response = NungilMatchResponse.builder()
                 .yoil(findCommonYoil(member, receiver))
-                .marker(findCommonMarkers(member, receiver).get(0))
-                .time(findCommonAvailableTimes(member, receiver).get(0))
+                .marker(nungil.getMatchedMarkers())
+                .time(nungil.getMatchedAvailableTimes())
                 .build();
         return response;
     }

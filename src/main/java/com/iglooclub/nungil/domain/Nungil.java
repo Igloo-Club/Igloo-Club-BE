@@ -1,11 +1,14 @@
 package com.iglooclub.nungil.domain;
 
+import com.iglooclub.nungil.domain.enums.AvailableTime;
+import com.iglooclub.nungil.domain.enums.Marker;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,11 +37,11 @@ public class Nungil {
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private String matchedMarkers;
+    private Marker matchedMarkers;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private String matchedAvailableTimes;
+    private AvailableTime matchedAvailableTimes;
 
     // == 정적 생성 메서드 == //
     public static Nungil create(Member member, Member receiver, NungilStatus status) {
@@ -62,7 +65,7 @@ public class Nungil {
         this.expiredAt = null;
     }
 
-    public void update(String matchedMarkers, String matchedAvailableTimes) {
+    public void update(Marker matchedMarkers, AvailableTime matchedAvailableTimes) {
         this.matchedMarkers = matchedMarkers;
         this.matchedAvailableTimes = matchedAvailableTimes;
     }
