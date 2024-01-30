@@ -292,4 +292,26 @@ public class Member {
         this.availableTimeAllocationList.clear();
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
     }
+
+
+    // List를 String으로 변환하는 메서드
+    public String getFaceDepictionAllocationsAsString() {
+        return faceDepictionAllocationList.stream()
+                .map(FaceDepictionAllocation::getFaceDepiction)
+                .map(FaceDepiction::getTitle)
+                .collect(Collectors.joining(", "));
+    }
+    public String getPersonalityDepictionAllocationAsString() {
+        return personalityDepictionAllocationList.stream()
+                .map(PersonalityDepictionAllocation::getPersonalityDepiction)
+                .map(PersonalityDepiction::getTitle)
+                .collect(Collectors.joining(", "));
+    }
+    public String getHobbyAllocationAsString() {
+        return hobbyAllocationList.stream()
+                .map(HobbyAllocation::getHobby)
+                .map(Hobby::getTitle)
+                .collect(Collectors.joining(", "));
+    }
+
 }
