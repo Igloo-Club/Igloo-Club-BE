@@ -59,7 +59,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ErrorResponse> handleException(final Exception exception) {
         log.warn("Exception occur: ", exception);
-        return this.makeErrorResponseEntity(GlobalErrorResult.UNKNOWN_EXCEPTION);
+        return this.makeErrorResponseEntity(GlobalErrorResult.UNKNOWN_EXCEPTION, exception.getMessage());
+    }
+
+    private ResponseEntity<ErrorResponse> makeErrorResponseEntity(final ErrorResult errorResult, final String message) {
+        return ResponseEntity.status(errorResult.getHttpStatus())
+                .body(new ErrorResponse(errorResult.name(), message));
     }
 
     private ResponseEntity<ErrorResponse> makeErrorResponseEntity(final ErrorResult errorResult) {

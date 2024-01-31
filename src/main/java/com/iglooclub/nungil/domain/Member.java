@@ -30,6 +30,8 @@ public class Member {
 
     private String nickname;
 
+    private String phoneNumber;
+
     @Enumerated(value = EnumType.STRING)
     private Sex sex;
 
@@ -294,6 +296,11 @@ public class Member {
     }
 
 
+    public void updatePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+
     // List를 String으로 변환하는 메서드
     public String getFaceDepictionAllocationsAsString() {
         return faceDepictionAllocationList.stream()
@@ -313,5 +320,6 @@ public class Member {
                 .map(Hobby::getTitle)
                 .collect(Collectors.joining(", "));
     }
+
 
 }

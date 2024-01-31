@@ -16,4 +16,12 @@ public class RandomStringUtil {
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
     }
+
+    public static String numeric(int length) {
+        Random random = new Random();
+        return random.ints(NUMERIC_LEFT, NUMERIC_RIGHT + 1)
+                .limit(length)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+    }
 }
