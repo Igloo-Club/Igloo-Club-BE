@@ -151,8 +151,6 @@ public class NungilService {
         nungil.setExpiredAt7DaysAfter();
 
         //눈길 받는 사용자 Acquaintance 객체 생성 및 저장
-        List<Acquaintance> acquaintanceList = acquaintanceRepository.findByMember(receiver);
-
         Acquaintance newAcquaintance = Acquaintance.builder()
                 .member(receiver)
                 .acquaintanceMember(member)
@@ -210,7 +208,7 @@ public class NungilService {
     }
 
     /**
-     * 공통 매청 정보를 조회하는 api입니다
+     * 공통 매칭 정보를 조회하는 api입니다
      *
      *
      * @param nungilId 눈길 id
@@ -232,8 +230,6 @@ public class NungilService {
     /**
      * 매 시간 expireAt이 초과된 눈길을 삭제합니다
      *
-     *
-     *
      */
     @Scheduled(cron = "0 0 * * * *") // 매시 정각에 실행
     @Transactional
@@ -246,7 +242,6 @@ public class NungilService {
     }
     /**
      * 매일 오전 11시에 추천된 눈길을 삭제합니다
-     *
      *
      *
      */
@@ -269,19 +264,19 @@ public class NungilService {
     private NungilResponse convertToNungilResponse(Member member) {
         return NungilResponse.builder()
                 .id(member.getId())
-                .location(member.getLocation())
+                .location(member.getLocation().getTitle())
                 .sex(member.getSex())
                 .age(LocalDateTime.now().minusYears(member.getBirthdate().getYear()).getYear())
                 .companyName(member.getCompany().getCompanyName())
                 .nickname(member.getNickname())
-                .animalFace(member.getAnimalFace())
-                .alcohol(member.getAlcohol())
-                .smoke(member.getSmoke())
-                .religion(member.getReligion())
+                .animalFace(member.getAnimalFace().getTitle())
+                .alcohol(member.getAlcohol().getTitle())
+                .smoke(member.getSmoke().getTitle())
+                .religion(member.getReligion().getTitle())
                 .mbti(member.getMbti())
                 .job(member.getJob())
                 .height(member.getHeight())
-                .marriageState(member.getMarriageState())
+                .marriageState(member.getMarriageState().getTitle())
                 .faceDepictionAllocationList(member.getFaceDepictionAllocationsAsString())
                 .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationAsString())
                 .description(member.getDescription())

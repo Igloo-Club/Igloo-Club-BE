@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class NungilResponse {
     private Long id;
 
-    private Location location;
+    private String location;
 
     private Sex sex;
 
@@ -26,13 +26,13 @@ public class NungilResponse {
 
     private String companyName;
 
-    private AnimalFace animalFace;
+    private String animalFace;
 
-    private Alcohol alcohol;
+    private String alcohol;
 
-    private Smoke smoke;
+    private String smoke;
 
-    private Religion religion;
+    private String religion;
 
     private Mbti mbti;
 
@@ -40,7 +40,7 @@ public class NungilResponse {
 
     private Integer height;
 
-    private MarriageState marriageState;
+    private String marriageState;
 
     private String faceDepictionAllocationList;
 
