@@ -9,13 +9,14 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
 public class NungilResponse {
     private Long id;
 
-    private Location location;
+    private String location;
 
     private Sex sex;
 
@@ -25,13 +26,13 @@ public class NungilResponse {
 
     private String companyName;
 
-    private AnimalFace animalFace;
+    private String animalFace;
 
-    private Alcohol alcohol;
+    private String alcohol;
 
-    private Smoke smoke;
+    private String smoke;
 
-    private Religion religion;
+    private String religion;
 
     private Mbti mbti;
 
@@ -39,15 +40,14 @@ public class NungilResponse {
 
     private Integer height;
 
-    private MarriageState marriageState;
+    private String marriageState;
 
-    private List<FaceDepictionAllocation> faceDepictionAllocationList;
+    private String faceDepictionAllocationList;
 
-    private List<PersonalityDepictionAllocation> personalityDepictionAllocationList;
+    private String personalityDepictionAllocationList;
 
     private String description;
 
-    private List<Hobby> hobbyList;
+    private String hobbyAllocationList;
 
-    private Contact contact;
 }

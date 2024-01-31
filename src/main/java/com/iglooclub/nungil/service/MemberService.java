@@ -120,4 +120,5 @@ public class MemberService {
 
         member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
     }
+
 }
