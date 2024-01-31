@@ -1,16 +1,20 @@
 package com.iglooclub.nungil.domain;
 
+import com.iglooclub.nungil.domain.enums.AvailableTime;
+import com.iglooclub.nungil.domain.enums.Marker;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Nungil {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,13 +49,26 @@ public class Nungil {
                 .member(member)
                 .receiver(receiver)
                 .createdAt(LocalDateTime.now())
-                .expiredAt(LocalDateTime.now().plusDays(7))
                 .status(status)
                 .build();
+    }
+
+    public void setStatus(NungilStatus status){
+        this.status = status;
+    }
+
+    public void setExpiredAt7DaysAfter(){
+        this.expiredAt = LocalDateTime.now().plusDays(7);
+    }
+
+    public void setExpiredAtNull(){
+        this.expiredAt = null;
     }
 
     public void update(String matchedMarkers, String matchedAvailableTimes) {
         this.matchedMarkers = matchedMarkers;
         this.matchedAvailableTimes = matchedAvailableTimes;
     }
+
+
 }

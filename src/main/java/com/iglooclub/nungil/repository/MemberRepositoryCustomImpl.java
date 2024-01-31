@@ -23,7 +23,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         QMember qMember = QMember.member;
 
         List<Long> acquaintanceMemberIds = acquaintanceList.stream()
-                .map(acquaintance -> acquaintance.getMember().getId())
+                .map(acquaintance -> acquaintance.getAcquaintanceMember().getId())
                 .collect(Collectors.toList());
 
         JPAQuery<Long> query = queryFactory.select(qMember.id)
