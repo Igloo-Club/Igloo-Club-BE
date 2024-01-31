@@ -11,7 +11,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class NungilMatchResponse {
-    Yoil yoil;
+    String yoil;
     String time;
     String marker;
 }

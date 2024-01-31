@@ -35,13 +35,16 @@ public class Nungil {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
+    @Nullable
+    private String matchedYoil;
+
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
     private String matchedMarkers;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private String matchedAvailableTimes;
+    private String matchedAvailableTime;
 
     // == 정적 생성 메서드 == //
     public static Nungil create(Member member, Member receiver, NungilStatus status) {
@@ -65,9 +68,10 @@ public class Nungil {
         this.expiredAt = null;
     }
 
-    public void update(String matchedMarkers, String matchedAvailableTimes) {
+    public void update(String matchedMarkers, String matchedAvailableTime, String matchedYoil) {
         this.matchedMarkers = matchedMarkers;
-        this.matchedAvailableTimes = matchedAvailableTimes;
+        this.matchedAvailableTime = matchedAvailableTime;
+        this.matchedYoil = matchedYoil;
     }
 
 

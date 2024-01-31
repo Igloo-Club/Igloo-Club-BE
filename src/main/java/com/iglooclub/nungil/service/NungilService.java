@@ -198,13 +198,17 @@ public class NungilService {
 
         String marker = null;
         String time = null;
+        String yoil = null;
         if(!findCommonMarkers(member, sender).isEmpty()){
-            marker = findCommonMarkers(member, sender).get(0).toString();
+            marker = findCommonMarkers(member, sender).toString();
         }
         if(!findCommonAvailableTimes(member, sender).isEmpty()){
             time = findCommonAvailableTimes(member, sender).get(0).toString();
         }
-        receivedNungil.update(marker, time);
+        if(findCommonYoil(member, sender) != null){
+            yoil = findCommonYoil(member, sender).toString();
+        }
+        receivedNungil.update(marker, time, yoil);
     }
 
     /**
@@ -215,14 +219,13 @@ public class NungilService {
      * @response nungilMatchResponse 눈길 매칭 정보
      */
     public NungilMatchResponse getMatchedNungil(Long nungilId){
-        Member member = nungilRepository.findById(nungilId).get().getMember();
-        Member receiver = nungilRepository.findById(nungilId).get().getReceiver();
+
         Optional<Nungil> optionalNungil = nungilRepository.findById(nungilId);
         Nungil nungil = optionalNungil.get();
         NungilMatchResponse response = NungilMatchResponse.builder()
-                .yoil(findCommonYoil(member, receiver))
+                .yoil(nungil.getMatchedYoil())
                 .marker(nungil.getMatchedMarkers())
-                .time(nungil.getMatchedAvailableTimes())
+                .time(nungil.getMatchedAvailableTime())
                 .build();
         return response;
     }
