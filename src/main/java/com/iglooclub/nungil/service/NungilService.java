@@ -193,7 +193,7 @@ public class NungilService {
         }
         Nungil sentNungil = optionalNungil.get();
         sentNungil.setStatus(NungilStatus.MATCHED);
-        receivedNungil.setExpiredAtNull();
+        sentNungil.setExpiredAtNull();
 
 
         String marker = null;
@@ -209,6 +209,7 @@ public class NungilService {
             yoil = findCommonYoil(member, sender).toString();
         }
         receivedNungil.update(marker, time, yoil);
+        sentNungil.update(marker, time, yoil);
     }
 
     /**
