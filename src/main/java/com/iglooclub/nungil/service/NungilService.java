@@ -9,6 +9,7 @@ import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.NungilErrorResult;
 import com.iglooclub.nungil.repository.AcquaintanceRepository;
+import com.iglooclub.nungil.repository.ChatRoomRepository;
 import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.NungilRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,8 @@ public class NungilService {
     private final MemberRepository memberRepository;
     private final NungilRepository nungilRepository;
     private final AcquaintanceRepository acquaintanceRepository;
+
+    private final ChatRoomRepository chatRoomRepository;
 
     private final MemberService memberService;
 
@@ -210,6 +213,10 @@ public class NungilService {
         }
         receivedNungil.update(marker, time, yoil);
         sentNungil.update(marker, time, yoil);
+
+        // 매칭된 사용자들을 채팅방에 초대
+        ChatRoom chatRoom = ChatRoom.create(member, sender);
+        chatRoomRepository.save(chatRoom);
     }
 
     /**
