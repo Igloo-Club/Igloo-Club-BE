@@ -29,6 +29,7 @@ public class ChatMessage {
 
     // 개발의 편의를 위해 일단 기본값을 READ로 설정. 추후 읽지 않은 메시지 개발 시 UNREAD로 변경
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private ChatMessageStatus status = ChatMessageStatus.READ;
 
     private LocalDateTime createdAt;
