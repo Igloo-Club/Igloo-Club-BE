@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.ChatMessageStatus;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,4 +32,14 @@ public class ChatMessage {
     private ChatMessageStatus status = ChatMessageStatus.READ;
 
     private LocalDateTime createdAt;
+
+    public static ChatMessage create(ChatRoom chatRoom, Member member, String content) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.chatRoom = chatRoom;
+        chatMessage.member = member;
+        chatMessage.content = content;
+        chatMessage.createdAt = LocalDateTime.now();
+
+        return chatMessage;
+    }
 }
