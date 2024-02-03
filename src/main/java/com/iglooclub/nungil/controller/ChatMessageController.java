@@ -3,6 +3,7 @@ package com.iglooclub.nungil.controller;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.ChatDTO;
 import com.iglooclub.nungil.dto.ChatMessageListResponse;
+import com.iglooclub.nungil.dto.ChatRoomListResponse;
 import com.iglooclub.nungil.service.ChatMessageService;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,19 @@ public class ChatMessageController {
         Slice<ChatMessageListResponse> messageSlice = chatMessageService.getMessageSlice(chatRoomId, member, pageRequest);
 
         return new ResponseEntity<>(messageSlice, HttpStatus.OK);
+    }
+
+    @GetMapping("api/chat/room")
+    public ResponseEntity<Slice<ChatRoomListResponse>> getRoomSlice(@RequestParam(defaultValue = "0") int pageNumber,
+                                                                    @RequestParam(defaultValue = "12") int pageSize,
+                                                                    Principal principal) {
+
+        Member member = getMember(principal);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Slice<ChatRoomListResponse> roomSlice = chatMessageService.getChatRoomSlice(member, pageRequest);
+
+        return new ResponseEntity<>(roomSlice, HttpStatus.OK);
     }
 
     private Member getMember(Principal principal) {
