@@ -4,6 +4,7 @@ import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import com.iglooclub.nungil.util.StringListConverter;
+import com.iglooclub.nungil.util.YoilListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -112,7 +113,7 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Acquaintance> acquaintanceList = new ArrayList<>();
 
-    @Convert(converter = StringListConverter.class)
+    @Convert(converter = YoilListConverter.class)
     @Builder.Default
     private List<Yoil> yoilList = new ArrayList<>();
 

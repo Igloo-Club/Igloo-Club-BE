@@ -325,6 +325,7 @@ public class NungilService {
         List<Yoil> list2 = member2.getYoilList();
         Set<DayOfWeek> set1 = EnumSet.noneOf(DayOfWeek.class);
         for (Yoil yoil : list1) {
+
             set1.add(yoil.getDayOfWeek());
         }
 
@@ -334,7 +335,7 @@ public class NungilService {
         for (Yoil yoil : list2) {
             if (set1.contains(yoil.getDayOfWeek())) {
                 if (isAfter11AM) {
-                    return findNextYoil(yoil, now);
+                    return findNextYoil(yoil, now, set1);
                 } else {
                     return yoil;
                 }
@@ -344,12 +345,22 @@ public class NungilService {
         return null;
     }
 
-    private Yoil findNextYoil(Yoil yoil, LocalDateTime now) {
+    private Yoil findNextYoil(Yoil yoil, LocalDateTime now, Set<DayOfWeek> availableDays) {
         DayOfWeek today = now.getDayOfWeek();
-        int daysUntilNext = (7 + yoil.getDayOfWeek().getValue() - today.getValue()) % 7;
-        if (daysUntilNext == 0) {
-            daysUntilNext = 7;
+        int offset = 0;
+        DayOfWeek nextDay = today;
+
+        do {
+            offset++;
+            nextDay = DayOfWeek.of((today.getValue() + offset - 1) % 7 + 1); // 요일을 순환합니다.
+        } while (!availableDays.contains(nextDay)); // 다음 사용 가능한 요일을 찾을 때까지 반복
+
+        for (Yoil nextYoil : Yoil.values()) {
+            if (nextYoil.getDayOfWeek().equals(nextDay)) {
+                return nextYoil; // 다음 요일에 해당하는 Yoil 열거형을 반환
+            }
         }
-        return Yoil.values()[(today.getValue() + daysUntilNext - 1) % 7];
+
+        return yoil;
     }
 }
