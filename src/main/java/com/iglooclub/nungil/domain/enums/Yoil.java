@@ -22,36 +22,4 @@ public enum Yoil {
 
     private final String title;
     private final DayOfWeek dayOfWeek;
-
-    public static Yoil findCommonYoil(List<Yoil> list1, List<Yoil> list2) {
-        Set<DayOfWeek> set1 = EnumSet.noneOf(DayOfWeek.class);
-        for (Yoil yoil : list1) {
-            set1.add(yoil.getDayOfWeek());
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        boolean isAfter11AM = now.getHour() >= 11;
-
-        for (Yoil yoil : list2) {
-            if (set1.contains(yoil.getDayOfWeek())) {
-                if (isAfter11AM) {
-                    return findNextYoil(yoil, now);
-                } else {
-                    return yoil;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static Yoil findNextYoil(Yoil yoil, LocalDateTime now) {
-        DayOfWeek today = now.getDayOfWeek();
-        int daysUntilNext = (7 + yoil.getDayOfWeek().getValue() - today.getValue()) % 7;
-        if (daysUntilNext == 0) {
-            daysUntilNext = 7;
-        }
-        return Yoil.values()[(today.getValue() + daysUntilNext - 1) % 7];
-    }
-
 }
