@@ -9,6 +9,7 @@ import com.iglooclub.nungil.exception.GlobalErrorResult;
 
 import javax.persistence.AttributeConverter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class StringListConverter implements AttributeConverter<List<String>, String> {
@@ -27,6 +28,9 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.trim().isEmpty()) {
+            return Collections.emptyList(); // dbData가 null이거나 빈 문자열일 경우 빈 리스트 반환
+        }
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
             return mapper.readValue(dbData, typeReference);
