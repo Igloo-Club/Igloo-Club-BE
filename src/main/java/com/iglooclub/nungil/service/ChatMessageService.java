@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,4 +99,23 @@ public class ChatMessageService {
         Long memberId = member.getId();
         return memberId.equals(chatRoom.getReceiver().getId()) || memberId.equals(chatRoom.getSender().getId());
     }
+
+
+
+
+    /**
+     * 매 시 정각 expireAt이 초과된 채팅룸/채팅 내역을 삭제합니다
+     *
+     *
+     */
+    @Scheduled(cron = "0 0 * * * *") // 매시 정각에 실행
+    @Transactional
+    public void deleteExpiredChatRoom() {
+        LocalDateTime now = LocalDateTime.now();
+        List<ChatRoom> chatRoomList = chatRoomRepository.findByExpiredAtBefore(now);
+        for (ChatRoom chatRoom : chatRoomList) {
+            chatRoomRepository.delete(chatRoom);
+        }
+    }
+
 }

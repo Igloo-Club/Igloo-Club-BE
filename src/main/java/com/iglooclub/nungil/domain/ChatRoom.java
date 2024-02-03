@@ -27,10 +27,12 @@ public class ChatRoom {
     private Member receiver;
 
     @Builder.Default
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ChatMessage> chatMessageList = new ArrayList();
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime expiredAt;
 
     // == 생성 메서드 == //
     public static ChatRoom create(Member receiver, Member sender) {
@@ -38,6 +40,7 @@ public class ChatRoom {
                 .sender(sender)
                 .receiver(receiver)
                 .createdAt(LocalDateTime.now())
+                .expiredAt(LocalDateTime.now().plusDays(7))
                 .build();
     }
 }
