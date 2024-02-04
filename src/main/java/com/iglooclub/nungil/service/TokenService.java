@@ -2,6 +2,7 @@ package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.config.jwt.TokenProvider;
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.TokenErrorResult;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class TokenService {
     private final RefreshTokenService refreshTokenService;
     private final MemberService memberService;
 
-    public String createNewAccessToken(String refreshToken) {
+    public LoginResponse createNewAccessToken(String refreshToken) {
         // 토큰 유효성 검사에 실패하면 예외 발생
         if (!tokenProvider.validateToken(refreshToken)) {
             throw new GeneralException(TokenErrorResult.UNEXPECTED_TOKEN);
@@ -24,7 +25,11 @@ public class TokenService {
 
         Long memberId = refreshTokenService.findByRefreshToken(refreshToken).getMemberId();
         Member member = memberService.findById(memberId);
+        //회원 프로필 등록 여부 판별
+        Boolean isProfileRegistered = member.getNickname() != null;
 
-        return tokenProvider.generateToken(member, Duration.ofHours(2));
+        String token = tokenProvider.generateToken(member, Duration.ofHours(2));
+
+        return new LoginResponse(token, isProfileRegistered);
     }
 }

@@ -36,9 +36,9 @@ public class OauthController {
             throw new GeneralException(TokenErrorResult.REFRESH_TOKEN_NOT_FOUND);
         }
 
-        String newAccessToken = tokenService.createNewAccessToken(refreshToken);
+        LoginResponse newLoginResponse = tokenService.createNewAccessToken(refreshToken);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new LoginResponse(newAccessToken));
+                .body(newLoginResponse);
     }
 }
