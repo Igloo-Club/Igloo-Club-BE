@@ -74,6 +74,8 @@ public class OauthService {
 
         // 3. 회원 정보 저장
         Member member = registerKakaoUser(responseJson, oauthAccessToken);
+        // 3-1. 회원 프로필 등록 여부 판별
+        Boolean isProfileRegistered = member.getNickname() != null;
 
         // 4. JWT 리프레시 토큰 발급
         String refreshToken = tokenProvider.generateToken(member, REFRESH_TOKEN_DURATION);
@@ -83,7 +85,7 @@ public class OauthService {
         // 5. JWT 액세스 토큰 발급
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
 
-        return new LoginResponse(accessToken);
+        return new LoginResponse(accessToken, isProfileRegistered);
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {

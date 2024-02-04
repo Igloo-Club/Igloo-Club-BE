@@ -7,4 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginResponse {
     private String accessToken;
+
+    //프로필 등록 여부 판별
+    private Boolean isProfileRegistered;
 }
