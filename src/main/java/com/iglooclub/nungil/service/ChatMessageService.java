@@ -3,8 +3,10 @@ package com.iglooclub.nungil.service;
 import com.iglooclub.nungil.domain.ChatMessage;
 import com.iglooclub.nungil.domain.ChatRoom;
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.domain.enums.AnimalFace;
 import com.iglooclub.nungil.dto.ChatDTO;
 import com.iglooclub.nungil.dto.ChatMessageListResponse;
+import com.iglooclub.nungil.dto.ChatRoomListResponse;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.repository.ChatMessageRepository;
@@ -13,9 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,5 +101,47 @@ public class ChatMessageService {
     private boolean checkChatRoomMember(ChatRoom chatRoom, Member member) {
         Long memberId = member.getId();
         return memberId.equals(chatRoom.getReceiver().getId()) || memberId.equals(chatRoom.getSender().getId());
+    }
+
+
+
+
+    /**
+     * 매 시 정각 expireAt이 초과된 채팅룸/채팅 내역을 삭제합니다.
+     *
+     *
+     */
+    @Scheduled(cron = "0 0 * * * *") // 매시 정각에 실행
+    @Transactional
+    public void deleteExpiredChatRoom() {
+        LocalDateTime now = LocalDateTime.now();
+        List<ChatRoom> chatRoomList = chatRoomRepository.findByExpiredAtBefore(now);
+        for (ChatRoom chatRoom : chatRoomList) {
+            chatRoomRepository.delete(chatRoom);
+        }
+    }
+
+    /**
+     * 사용자의 채팅방 목록을 Slice 형식으로 조회하는 메서드입니다.
+     * @param member 조회를 요청한 회원의 엔티티
+     * @param pageRequest 조회되는 페이지 번호, 갯수, 정렬 방식(최근순)
+     * @return Slice 형식의 채팅 메시지 목록
+     */
+    public Slice<ChatRoomListResponse> getChatRoomSlice(Member member,PageRequest pageRequest){
+        Slice<ChatRoom> chatRoomSlice = chatRoomRepository.findBySenderOrReceiver(member, member, pageRequest);
+
+        return chatRoomSlice.map(chatRoom -> {
+            Member opponent = chatRoom.getSender().equals(member) ? chatRoom.getReceiver() : chatRoom.getSender();
+            ChatMessage lastMessage = chatRoom.getChatMessageList().isEmpty() ? null : chatRoom.getChatMessageList().get(chatRoom.getChatMessageList().size() - 1);
+            String content = lastMessage != null ? lastMessage.getContent() : "지금 연락을 시작하세요!";
+            LocalDateTime createdAt = lastMessage != null ? lastMessage.getCreatedAt() : chatRoom.getCreatedAt();
+            return new ChatRoomListResponse(
+                    opponent.getAnimalFace(), // 상대방의 AnimalFace
+                    opponent.getNickname(), // 상대방 닉네임
+                    content, // 마지막 메시지 내용
+                    createdAt, // 마지막 메시지 생성 시간
+                    chatRoom.getId() // 채팅방 ID
+            );
+        });
     }
 }
