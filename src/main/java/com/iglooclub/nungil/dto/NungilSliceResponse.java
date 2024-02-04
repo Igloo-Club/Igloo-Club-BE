@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 public class NungilSliceResponse {
     private final Long nungilId;
 
+    private final String animalFace;
+
     private final String companyName;
 
     private final String job;

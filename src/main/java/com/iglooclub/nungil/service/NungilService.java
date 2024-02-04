@@ -99,6 +99,7 @@ public class NungilService {
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
                 .map(nungil -> NungilSliceResponse.builder()
                         .nungilId(nungil.getId())
+                        .animalFace(nungil.getReceiver().getAnimalFace().getTitle())
                         .companyName(nungil.getReceiver().getCompany().getCompanyName()) // 이 부분은 Nungil 엔티티의 구조에 따라 달라질 수 있습니다.
                         .job(nungil.getReceiver().getJob())
                         .description(nungil.getReceiver().getDescription())
