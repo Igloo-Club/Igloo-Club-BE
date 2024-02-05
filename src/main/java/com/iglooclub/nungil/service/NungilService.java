@@ -12,6 +12,7 @@ import com.iglooclub.nungil.repository.AcquaintanceRepository;
 import com.iglooclub.nungil.repository.ChatRoomRepository;
 import com.iglooclub.nungil.repository.MemberRepository;
 import com.iglooclub.nungil.repository.NungilRepository;
+import com.iglooclub.nungil.util.CoolSMS;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,6 +36,10 @@ public class NungilService {
     private final ChatRoomRepository chatRoomRepository;
 
     private final MemberService memberService;
+
+    private final CoolSMS coolSMS;
+
+    private static final String BASE_URL = "https://nungil.com";
 
     /* 눈길 관리 */
     /**
@@ -165,6 +170,13 @@ public class NungilService {
         Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
         newNungil.setExpiredAt7DaysAfter();
         nungilRepository.save(newNungil);
+
+        // 눈길 받은 사용자에게 알림 전송
+        String phoneNumber = receiver.getPhoneNumber();
+        String url = BASE_URL + "/receiveddetailpage/" + newNungil.getId();
+        String text = "[눈길] 새로운 눈길이 도착했어요. 얼른 확인해보세요!\n" + url;
+
+        coolSMS.send(phoneNumber, text);
     }
 
     /**
