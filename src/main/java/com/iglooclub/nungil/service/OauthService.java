@@ -122,7 +122,7 @@ public class OauthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", CLIENT_ID);
-        body.add("redirect_uri", REDIRECT_URI);
+//        body.add("redirect_uri", REDIRECT_URI);
         body.add("code", code);
 
         // HTTP 요청 보내기
