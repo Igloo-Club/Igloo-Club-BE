@@ -229,6 +229,13 @@ public class NungilService {
         // 매칭된 사용자들을 채팅방에 초대
         ChatRoom chatRoom = ChatRoom.create(member, sender);
         chatRoomRepository.save(chatRoom);
+
+        // 눈길 보낸 사용자에게 알림 전송
+        String phoneNumber = sender.getPhoneNumber();
+        String url = BASE_URL + "/finishmatch/" + sentNungil.getId();
+        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
+
+        coolSMS.send(phoneNumber, text);
     }
 
     /**
