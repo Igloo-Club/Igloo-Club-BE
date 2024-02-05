@@ -79,7 +79,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(
-                List.of("http://localhost:8080", "http://localhost:3000", "http://localhost:5173")
+                List.of("http://localhost:8080", "http://localhost:3000", "http://localhost:5173", "https://www.nungil.com")
         );
         config.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
