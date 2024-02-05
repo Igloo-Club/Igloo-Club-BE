@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.dto.AvailableTimeAndPlaceResponse;
 import com.iglooclub.nungil.dto.ChatDTO;
 import com.iglooclub.nungil.dto.ChatMessageListResponse;
 import com.iglooclub.nungil.dto.ChatRoomListResponse;
@@ -67,6 +68,12 @@ public class ChatMessageController {
         Slice<ChatRoomListResponse> roomSlice = chatMessageService.getChatRoomSlice(member, pageRequest);
 
         return new ResponseEntity<>(roomSlice, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/chat/room/{chatRoomId}/info")
+    public AvailableTimeAndPlaceResponse getAvailableTimeAndPlace(@PathVariable Long chatRoomId, Principal principal){
+        Member member = getMember(principal);
+        return chatMessageService.getAvailableTimeAndPlace(member, chatRoomId);
     }
 
     private Member getMember(Principal principal) {
