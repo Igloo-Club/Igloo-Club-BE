@@ -323,4 +323,8 @@ public class Member {
     }
 
 
+    public Boolean toggleDisableCompany() {
+        this.disableCompany = !this.disableCompany;
+        return this.disableCompany;
+    }
 }

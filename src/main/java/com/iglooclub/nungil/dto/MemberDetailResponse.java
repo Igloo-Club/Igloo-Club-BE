@@ -52,6 +52,8 @@ public class MemberDetailResponse {
 
     private List<String> hobbyList;
 
+    private Boolean disableCompany;
+
     // == 생성 메서드 == //
     public static MemberDetailResponse create(Member member) {
         List<String> faceDepictionList = member.getFaceDepictionAllocationList().stream()
@@ -85,6 +87,7 @@ public class MemberDetailResponse {
                 .markerList(markerList)
                 .availableTimeList(availableTimeList)
                 .hobbyList(hobbyList)
+                .disableCompany(member.getDisableCompany())
                 .build();
     }
 }
