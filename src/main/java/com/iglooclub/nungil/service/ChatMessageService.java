@@ -1,12 +1,11 @@
 package com.iglooclub.nungil.service;
 
-import com.iglooclub.nungil.domain.ChatMessage;
-import com.iglooclub.nungil.domain.ChatRoom;
-import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.AnimalFace;
-import com.iglooclub.nungil.dto.ChatDTO;
-import com.iglooclub.nungil.dto.ChatMessageListResponse;
-import com.iglooclub.nungil.dto.ChatRoomListResponse;
+import com.iglooclub.nungil.domain.enums.AvailableTime;
+import com.iglooclub.nungil.domain.enums.Marker;
+import com.iglooclub.nungil.domain.enums.Yoil;
+import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.repository.ChatMessageRepository;
@@ -144,4 +143,32 @@ public class ChatMessageService {
             );
         });
     }
+    /**
+     * 사용자의 채팅방 목록을 Slice 형식으로 조회하는 메서드입니다.
+     * @param member 조회를 요청한 회원의 엔티티
+     * @param chatRoomId 채팅방 id
+     * @return AvailableTimeAndPlaceResponse 상대방의 가능한 시간과 장소
+     */
+    public AvailableTimeAndPlaceResponse getAvailableTimeAndPlace(Member member, Long chatRoomId){
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(()-> new GeneralException(ChatRoomErrorResult.CHAT_ROOM_NOT_FOUND));
+        Member opponent = chatRoom.getSender().equals(member) ? chatRoom.getReceiver() : chatRoom.getSender();
+        List<AvailableTime> timeList = opponent.getAvailableTimeAllocationList().stream()
+                .map(AvailableTimeAllocation::getAvailableTime)
+                .collect(Collectors.toList());
+
+        List<Marker> markersList = opponent.getMarkerAllocationList().stream()
+                .map(MarkerAllocation::getMarker)
+                .collect(Collectors.toList());
+
+        List<Yoil> yoilList = opponent.getYoilList();
+
+        return new AvailableTimeAndPlaceResponse(
+                yoilList.toString(),
+                timeList.toString(),
+                markersList.toString()
+        );
+    }
+
+
 }
