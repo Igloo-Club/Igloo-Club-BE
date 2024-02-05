@@ -37,6 +37,13 @@ public class MemberController {
         return ResponseEntity.ok(null);
     }
 
+    @PatchMapping("/api/member/company/toggle")
+    public ResponseEntity<?> toggleDisableCompany(Principal principal) {
+        Member member = getMember(principal);
+        DisableCompanyResponse response = memberService.toggleDisableCompany(member);
+        return ResponseEntity.ok(response);
+    }
+
     @PatchMapping("/api/member/schedule")
     public ResponseEntity<?> updateSchedule(@RequestBody ScheduleUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
