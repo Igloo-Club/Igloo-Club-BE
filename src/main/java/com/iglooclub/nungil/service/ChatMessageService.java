@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,14 +67,21 @@ public class ChatMessageService {
 
         ChatRoom chatRoom = getChatRoom(chatRoomId);
 
-        // 1. 채팅방의 메시지 목록 조회
+        // 1. 채팅방의 메시지 목록을 최근순으로 조회
         Slice<ChatMessageListResponse> messageSlice = getMessageSlice(chatRoom, member, pageRequest);
+
+        // 1-1. 가장 최근 채팅이 가장 뒤로 가도록 뒤집음
+        List<ChatMessageListResponse> reversedContent = messageSlice.getContent();
+        Collections.reverse(reversedContent);
+
+        // 뒤집은 목록으로 새로운 Slice 생성
+        Slice<ChatMessageListResponse> reversedMessageSlice = new SliceImpl<>(reversedContent, pageRequest, messageSlice.hasNext());
 
         // 2. 채팅 상대방 탐색
         Member opponent = getOpponent(chatRoom, member);
 
         // 3. 채팅방의 상세 정보 반환
-        return ChatRoomDetailResponse.create(opponent, messageSlice);
+        return ChatRoomDetailResponse.create(opponent, reversedMessageSlice);
     }
 
     private Member getOpponent(ChatRoom chatRoom, Member member) {
