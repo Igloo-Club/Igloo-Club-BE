@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.*;
-import com.iglooclub.nungil.domain.enums.AvailableTime;
-import com.iglooclub.nungil.domain.enums.Marker;
-import com.iglooclub.nungil.domain.enums.NungilStatus;
-import com.iglooclub.nungil.domain.enums.Yoil;
+import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.NungilErrorResult;
@@ -66,11 +63,7 @@ public class NungilService {
         Member recommendedMember = memberService.findById(recommendedMemberId);
 
         // Acquaintance 객체 생성 및 저장
-        Acquaintance newAcquaintance = Acquaintance.builder()
-                .member(member)
-                .acquaintanceMember(recommendedMember)
-                .build();
-
+        Acquaintance newAcquaintance = getAcquaintance(member, recommendedMember);
         acquaintanceRepository.save(newAcquaintance);
 
         Nungil newNungil = Nungil.create(member, recommendedMember, NungilStatus.RECOMMENDED);
@@ -80,6 +73,7 @@ public class NungilService {
         return convertToNungilResponse(recommendedMember);
 
     }
+
     /**
      * 요청 눈길상태의 프로필을 전체 조회하는 api입니다
      *
@@ -153,14 +147,6 @@ public class NungilService {
         nungil.setStatus(NungilStatus.SENT);
         nungil.setExpiredAt7DaysAfter();
 
-        //눈길 받는 사용자 Acquaintance 객체 생성 및 저장
-        Acquaintance newAcquaintance = Acquaintance.builder()
-                .member(receiver)
-                .acquaintanceMember(member)
-                .build();
-
-        acquaintanceRepository.save(newAcquaintance);
-
         //눈길 받는 사용자 눈길 객체 생성 및 저장
         Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
         newNungil.setExpiredAt7DaysAfter();
@@ -198,6 +184,14 @@ public class NungilService {
         sentNungil.setStatus(NungilStatus.MATCHED);
         sentNungil.setExpiredAtNull();
 
+        // 서로에 대한 Acquaintance 객체 생성 및 저장
+        Acquaintance acquaintanceFromMember = getAcquaintance(member, sender);
+        acquaintanceFromMember.update(AcquaintanceStatus.MATCHED);
+        acquaintanceRepository.save(acquaintanceFromMember);
+
+        Acquaintance acquaintanceFromSender = getAcquaintance(sender, member);
+        acquaintanceFromSender.update(AcquaintanceStatus.MATCHED);
+        acquaintanceRepository.save(acquaintanceFromSender);
 
         String marker = null;
         String time = null;
@@ -248,6 +242,7 @@ public class NungilService {
         LocalDateTime now = LocalDateTime.now();
         nungilRepository.deleteAllByExpiredAtBefore(now);
     }
+
     /**
      * 매일 오전 11시에 추천된 눈길을 삭제합니다
      *
@@ -258,7 +253,6 @@ public class NungilService {
     public void deleteRecommendedNungils() {
         nungilRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);
     }
-
 
     private Member getMember(Principal principal) {
         return memberService.findById(Long.parseLong(principal.getName()));
@@ -320,7 +314,6 @@ public class NungilService {
 
         return new ArrayList<>(markerSet1);
     }
-
     public Yoil findCommonYoil(Member member1, Member member2) {
         List<Yoil> list1 = member1.getYoilList();
         List<Yoil> list2 = member2.getYoilList();
@@ -363,5 +356,16 @@ public class NungilService {
         }
 
         return yoil;
+    }
+
+    /**
+     * ACQUAINTANCE 데이터베이스에 member와 acquaintanceMember로 구성된 데이터가 없는 경우 생성하고, 있는 경우 조회하여 반환하는 메서드이다.
+     * @param member Member 엔티티
+     * @param acquaintanceMember member 회원의 지인을 가리키는 Member 엔티티
+     * @return 조회된 Acquaintance 엔티티
+     */
+    private Acquaintance getAcquaintance(Member member, Member acquaintanceMember) {
+        return acquaintanceRepository.findByMemberAndAcquaintanceMember(member, acquaintanceMember)
+                .orElse(Acquaintance.create(member, acquaintanceMember, AcquaintanceStatus.RECOMMENDED));
     }
 }
