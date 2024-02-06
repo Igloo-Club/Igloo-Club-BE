@@ -1,25 +1,47 @@
 package com.iglooclub.nungil.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import com.iglooclub.nungil.domain.Company;
+import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.domain.Nungil;
+import com.iglooclub.nungil.domain.enums.AnimalFace;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NungilSliceResponse {
-    private final Long nungilId;
+    private Long nungilId;
 
-    private final String animalFace;
+    private String animalFace;
 
-    private final String companyName;
+    private String companyName;
 
-    private final String job;
+    private String job;
 
-    private final String description;
+    private String description;
 
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
-    private final LocalDateTime expiredAt;
+    private LocalDateTime expiredAt;
+
+    private String nickname;
+
+    public static NungilSliceResponse create(Nungil nungil, Member member) {
+        NungilSliceResponse response = new NungilSliceResponse();
+        AnimalFace animalFace = member.getAnimalFace();
+        Company company = member.getCompany();
+
+        response.nungilId = nungil.getId();
+        response.createdAt = nungil.getCreatedAt();
+        response.expiredAt = nungil.getExpiredAt();
+
+        response.animalFace = (animalFace != null) ? animalFace.getTitle() : null;
+        response.companyName = (company != null) ? company.getCompanyName() : null;
+        response.job = member.getJob();
+        response.description = member.getDescription();
+        response.nickname = member.getNickname();
+
+        return response;
+    }
 }
