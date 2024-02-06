@@ -114,15 +114,7 @@ public class NungilService {
 
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
-                .map(nungil -> NungilSliceResponse.builder()
-                        .nungilId(nungil.getId())
-                        .animalFace(nungil.getReceiver().getAnimalFace().getTitle())
-                        .companyName(nungil.getReceiver().getCompany().getCompanyName()) // 이 부분은 Nungil 엔티티의 구조에 따라 달라질 수 있습니다.
-                        .job(nungil.getReceiver().getJob())
-                        .description(nungil.getReceiver().getDescription())
-                        .createdAt(nungil.getCreatedAt())
-                        .expiredAt(nungil.getExpiredAt())
-                        .build())
+                .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
                 .collect(Collectors.toList());
 
         // 변환된 DTO 리스트와 함께 새로운 Slice 객체를 생성하여 반환
@@ -148,7 +140,6 @@ public class NungilService {
      * receiver에게 status가 RECEIVED인 눈길을 생성합니다
      *
      * @param nungilId 눈길 id
-     * @return nungilResponse 특정 눈길 정보
      */
     @Transactional
     public void sendNungil(Member member, Long nungilId){
