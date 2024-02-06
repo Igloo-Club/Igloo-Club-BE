@@ -10,4 +10,6 @@ public class LoginResponse {
 
     // 다음 수행할 가입 절차
     private String nextProgress;
+
+    private Boolean isProfileRegistered;
 }

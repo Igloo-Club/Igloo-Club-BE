@@ -33,6 +33,6 @@ public class TokenService {
 
         String token = tokenProvider.generateToken(member, Duration.ofHours(2));
 
-        return new LoginResponse(token, nextProgress.getTitle());
+        return new LoginResponse(token, nextProgress.getTitle(), RegisterProgress.REGISTERED.equals(nextProgress));
     }
 }

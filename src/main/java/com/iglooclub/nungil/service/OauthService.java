@@ -86,7 +86,7 @@ public class OauthService {
         // 5. JWT 액세스 토큰 발급
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
 
-        return new LoginResponse(accessToken, nextProgress.getTitle());
+        return new LoginResponse(accessToken, nextProgress.getTitle(), RegisterProgress.REGISTERED.equals(nextProgress));
     }
 
     /**
