@@ -1,9 +1,11 @@
 package com.iglooclub.nungil.controller;
 
+import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.dto.OauthLoginRequest;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.TokenErrorResult;
+import com.iglooclub.nungil.service.MemberService;
 import com.iglooclub.nungil.service.OauthService;
 import com.iglooclub.nungil.service.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +26,8 @@ public class OauthController {
     private final OauthService oauthService;
 
     private final TokenService tokenService;
+
+    private final MemberService memberService;
 
     @PostMapping("/api/auth/kakao")
     public ResponseEntity<LoginResponse> kakaoLogin(@RequestBody OauthLoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
@@ -40,5 +45,17 @@ public class OauthController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(newLoginResponse);
+    }
+
+    @PostMapping("/api/logout/kakao")
+    public ResponseEntity<?> kakaoLogout(Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        Member member = getMember(principal);
+        oauthService.kakaoLogout(member, request, response);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Member getMember(Principal principal) {
+        return memberService.findById(Long.parseLong(principal.getName()));
     }
 }

@@ -88,6 +88,23 @@ public class OauthService {
         return new LoginResponse(accessToken, isProfileRegistered);
     }
 
+    /**
+     * 사용자를 로그아웃 처리하는 메서드이다.
+     * @param member 로그아웃할 사용자
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     */
+    public void kakaoLogout(Member member, HttpServletRequest request, HttpServletResponse response) {
+        // 1. 리프레시 토큰 만료
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+
+        // 2. 사용자의 카카오 액세스 토큰 조회
+        String oauthAccess = member.getOauthAccess();
+
+        // 3. 카카오로 로그아웃 요청 보내기
+        logoutKakao(oauthAccess);
+    }
+
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
         int cookieMaxAge = (int) REFRESH_TOKEN_DURATION.toSeconds();
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
@@ -195,5 +212,25 @@ public class OauthService {
                         .oauthInfo(oauthInfo)
                         .build());
         return memberRepository.save(member);
+    }
+
+    /**
+     * 카카오 액세스 토큰을 사용하여, 카카오 서버에 로그아웃 요청을 보내는 메서드이다.
+     * @param accessToken 카카오 액세스 토큰
+     */
+    private void logoutKakao(String accessToken) {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> logoutRequest = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/logout",
+                HttpMethod.POST,
+                logoutRequest,
+                String.class
+        );
     }
 }
