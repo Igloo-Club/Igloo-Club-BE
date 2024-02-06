@@ -8,6 +8,7 @@ import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.OauthInfo;
 import com.iglooclub.nungil.domain.RefreshToken;
 import com.iglooclub.nungil.domain.enums.OauthProvider;
+import com.iglooclub.nungil.domain.enums.RegisterProgress;
 import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.GlobalErrorResult;
@@ -75,7 +76,7 @@ public class OauthService {
         // 3. 회원 정보 저장
         Member member = registerKakaoUser(responseJson, oauthAccessToken);
         // 3-1. 회원 프로필 등록 여부 판별
-        Boolean isProfileRegistered = member.getNickname() != null;
+        RegisterProgress nextProgress = getNextProgress(member);
 
         // 4. JWT 리프레시 토큰 발급
         String refreshToken = tokenProvider.generateToken(member, REFRESH_TOKEN_DURATION);
@@ -85,7 +86,38 @@ public class OauthService {
         // 5. JWT 액세스 토큰 발급
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
 
-        return new LoginResponse(accessToken, isProfileRegistered);
+        return new LoginResponse(accessToken, nextProgress.getTitle());
+    }
+
+    /**
+     * 주어진 회원이 수행해야 하는 다음 가입 절차를 반환한다.
+     * @param member 회원 엔티티
+     * @return 다음에 수행할 가입 절차
+     */
+    public RegisterProgress getNextProgress(Member member) {
+
+        // 장소가 존재하면, 가입 완료
+        if (member.getLocation() != null) {
+            return RegisterProgress.REGISTERED;
+        }
+
+        // 닉네임이 존재하면, 장소 선택부터
+        if (member.getNickname() != null) {
+            return RegisterProgress.PLACE_INPUT;
+        }
+
+        // 회사 이메일 인증 후이면, 닉네임 입력부터
+        if (member.getCompany() != null) {
+            return RegisterProgress.NICKNAME_INPUT;
+        }
+
+        // 전화번호 인증 후이면, 회사 이메일 입력부터
+        if (member.getPhoneNumber() != null) {
+            return RegisterProgress.COMPANY_EMAIL_INPUT;
+        }
+
+        // 전화번호 인증 전이면, 맨 처음(약관동의)부터
+        return RegisterProgress.AGREEMENT;
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
