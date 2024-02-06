@@ -130,12 +130,13 @@ public class ChatMessageService {
         Slice<ChatRoom> chatRoomSlice = chatRoomRepository.findBySenderOrReceiver(member, member, pageRequest);
 
         return chatRoomSlice.map(chatRoom -> {
-            Member opponent = chatRoom.getSender().equals(member) ? chatRoom.getReceiver() : chatRoom.getSender();
+            Member opponent = getOpponent(chatRoom, member);
+            AnimalFace animalFace = opponent.getAnimalFace();
             ChatMessage lastMessage = chatRoom.getChatMessageList().isEmpty() ? null : chatRoom.getChatMessageList().get(chatRoom.getChatMessageList().size() - 1);
             String content = lastMessage != null ? lastMessage.getContent() : "지금 연락을 시작하세요!";
             LocalDateTime createdAt = lastMessage != null ? lastMessage.getCreatedAt() : chatRoom.getCreatedAt();
             return new ChatRoomListResponse(
-                    opponent.getAnimalFace(), // 상대방의 AnimalFace
+                    (animalFace != null) ? animalFace.getTitle(): null, // 상대방의 AnimalFace
                     opponent.getNickname(), // 상대방 닉네임
                     content, // 마지막 메시지 내용
                     createdAt, // 마지막 메시지 생성 시간
