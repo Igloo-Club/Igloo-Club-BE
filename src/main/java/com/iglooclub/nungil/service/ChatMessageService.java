@@ -56,14 +56,38 @@ public class ChatMessageService {
     }
 
     /**
-     * 주어진 채팅방의 메시지 목록을 Slice 형식으로 조회하는 메서드입니다.
+     * 채팅방의 메시지 목록과 상대방 정보를 반환하는 메서드이다.
      * @param chatRoomId 채팅방 ID
+     * @param member 조회를 요청한 회원 엔티티
+     * @param pageRequest 조회되는 페이지 번호, 갯수, 정렬 방식(최근순)
+     * @return 채팅방 상세 정보
+     */
+    public ChatRoomDetailResponse getChatRoomDetail(Long chatRoomId, Member member, PageRequest pageRequest) {
+
+        ChatRoom chatRoom = getChatRoom(chatRoomId);
+
+        // 1. 채팅방의 메시지 목록 조회
+        Slice<ChatMessageListResponse> messageSlice = getMessageSlice(chatRoom, member, pageRequest);
+
+        // 2. 채팅 상대방 탐색
+        Member opponent = getOpponent(chatRoom, member);
+
+        // 3. 채팅방의 상세 정보 반환
+        return ChatRoomDetailResponse.create(opponent, messageSlice);
+    }
+
+    private Member getOpponent(ChatRoom chatRoom, Member member) {
+        return chatRoom.getSender().equals(member) ? chatRoom.getReceiver() : chatRoom.getSender();
+    }
+
+    /**
+     * 주어진 채팅방의 메시지 목록을 Slice 형식으로 조회하는 메서드입니다.
+     * @param chatRoom 채팅방 엔티티
      * @param member 조회를 요청한 회원의 엔티티
      * @param pageRequest 조회되는 페이지 번호, 갯수, 정렬 방식(최근순)
      * @return Slice 형식의 채팅 메시지 목록
      */
-    public Slice<ChatMessageListResponse> getMessageSlice(Long chatRoomId, Member member, PageRequest pageRequest) {
-        ChatRoom chatRoom = getChatRoom(chatRoomId);
+    public Slice<ChatMessageListResponse> getMessageSlice(ChatRoom chatRoom, Member member, PageRequest pageRequest) {
 
         // 메시지 발행자(member)가 해당 채팅방의 일원이 아니면 예외 발생
         if (!checkChatRoomMember(chatRoom, member)) {
@@ -153,7 +177,7 @@ public class ChatMessageService {
     public AvailableTimeAndPlaceResponse getAvailableTimeAndPlace(Member member, Long chatRoomId){
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(()-> new GeneralException(ChatRoomErrorResult.CHAT_ROOM_NOT_FOUND));
-        Member opponent = chatRoom.getSender().equals(member) ? chatRoom.getReceiver() : chatRoom.getSender();
+        Member opponent = getOpponent(chatRoom, member);
         List<AvailableTime> timeList = opponent.getAvailableTimeAllocationList().stream()
                 .map(AvailableTimeAllocation::getAvailableTime)
                 .collect(Collectors.toList());
