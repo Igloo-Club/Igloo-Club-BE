@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.dto.AvailableTimeAndPlaceResponse;
-import com.iglooclub.nungil.dto.ChatDTO;
-import com.iglooclub.nungil.dto.ChatMessageListResponse;
-import com.iglooclub.nungil.dto.ChatRoomListResponse;
+import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.ChatMessageService;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +40,7 @@ public class ChatMessageController {
     }
 
     @GetMapping("/api/chat/room/{chatRoomId}")
-    public ResponseEntity<Slice<ChatMessageListResponse>> getMessageSlice(@PathVariable Long chatRoomId,
+    public ResponseEntity<ChatRoomDetailResponse> getMessageSlice(@PathVariable Long chatRoomId,
                                                                           @RequestParam(defaultValue = "0") int pageNumber,
                                                                           @RequestParam(defaultValue = "12") int pageSize,
                                                                           Principal principal) {
@@ -52,9 +49,9 @@ public class ChatMessageController {
         // 메시지를 최근에 작성된 순서대로 조회
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.desc("createdAt")));
 
-        Slice<ChatMessageListResponse> messageSlice = chatMessageService.getMessageSlice(chatRoomId, member, pageRequest);
+        ChatRoomDetailResponse chatRoomDetail = chatMessageService.getChatRoomDetail(chatRoomId, member, pageRequest);
 
-        return new ResponseEntity<>(messageSlice, HttpStatus.OK);
+        return new ResponseEntity<>(chatRoomDetail, HttpStatus.OK);
     }
 
     @GetMapping("api/chat/room")
