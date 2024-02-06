@@ -246,10 +246,7 @@ public class NungilService {
     @Transactional
     public void deleteExpiredNungils() {
         LocalDateTime now = LocalDateTime.now();
-        List<Nungil> expiredNungils = nungilRepository.findByExpiredAtBefore(now);
-        for (Nungil nungil : expiredNungils) {
-            nungilRepository.delete(nungil);
-        }
+        nungilRepository.deleteAllByExpiredAtBefore(now);
     }
     /**
      * 매일 오전 11시에 추천된 눈길을 삭제합니다
@@ -259,11 +256,7 @@ public class NungilService {
     @Scheduled(cron = "0 0 11 * * *") // 매일 오전 11시에 실행
     @Transactional
     public void deleteRecommendedNungils() {
-        LocalDateTime now = LocalDateTime.now();
-        List<Nungil> recommendedNungils = nungilRepository.findByStatus(NungilStatus.RECOMMENDED);
-        for (Nungil nungil : recommendedNungils) {
-            nungilRepository.delete(nungil);
-        }
+        nungilRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);
     }
 
 
