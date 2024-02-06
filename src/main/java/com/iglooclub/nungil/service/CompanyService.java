@@ -79,7 +79,7 @@ public class CompanyService {
         String filename = "company-authentication.html";
 
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
-        String code = RandomStringUtil.alphanumeric(6);
+        String code = RandomStringUtil.numeric(6);
 
         // 이메일을 발송한다.
         emailSender.send(EmailMessage.create(email, subject, filename).addContext("code", code));
