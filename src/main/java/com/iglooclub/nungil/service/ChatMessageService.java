@@ -14,12 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,7 +71,7 @@ public class ChatMessageService {
         Slice<ChatMessageListResponse> messageSlice = getMessageSlice(chatRoom, member, pageRequest);
 
         // 1-1. 가장 최근 채팅이 가장 뒤로 가도록 뒤집음
-        List<ChatMessageListResponse> reversedContent = messageSlice.getContent();
+        List<ChatMessageListResponse> reversedContent = new ArrayList<>(messageSlice.getContent());
         Collections.reverse(reversedContent);
 
         // 뒤집은 목록으로 새로운 Slice 생성
