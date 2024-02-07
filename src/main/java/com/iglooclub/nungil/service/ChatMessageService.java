@@ -186,21 +186,13 @@ public class ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(()-> new GeneralException(ChatRoomErrorResult.CHAT_ROOM_NOT_FOUND));
         Member opponent = getOpponent(chatRoom, member);
-        List<AvailableTime> timeList = opponent.getAvailableTimeAllocationList().stream()
-                .map(AvailableTimeAllocation::getAvailableTime)
-                .collect(Collectors.toList());
+        List<AvailableTime> timeList = opponent.getAvailableTimeList();
 
-        List<Marker> markersList = opponent.getMarkerAllocationList().stream()
-                .map(MarkerAllocation::getMarker)
-                .collect(Collectors.toList());
+        List<Marker> markersList = opponent.getMarkerList();
 
         List<Yoil> yoilList = opponent.getYoilList();
 
-        return new AvailableTimeAndPlaceResponse(
-                yoilList.toString(),
-                timeList.toString(),
-                markersList.toString()
-        );
+        return AvailableTimeAndPlaceResponse.create(yoilList, timeList, markersList);
     }
 
 
