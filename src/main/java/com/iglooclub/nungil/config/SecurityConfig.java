@@ -55,6 +55,7 @@ public class SecurityConfig {
                 // 인증, 인가 설정
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
+                .antMatchers("/stomp", "/stomp/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
 
