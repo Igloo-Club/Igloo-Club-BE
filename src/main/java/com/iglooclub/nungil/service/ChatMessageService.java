@@ -1,10 +1,7 @@
 package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.*;
-import com.iglooclub.nungil.domain.enums.AnimalFace;
-import com.iglooclub.nungil.domain.enums.AvailableTime;
-import com.iglooclub.nungil.domain.enums.Marker;
-import com.iglooclub.nungil.domain.enums.Yoil;
+import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
@@ -186,13 +183,13 @@ public class ChatMessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(()-> new GeneralException(ChatRoomErrorResult.CHAT_ROOM_NOT_FOUND));
         Member opponent = getOpponent(chatRoom, member);
+
         List<AvailableTime> timeList = opponent.getAvailableTimeList();
-
         List<Marker> markersList = opponent.getMarkerList();
-
         List<Yoil> yoilList = opponent.getYoilList();
+        Location location = opponent.getLocation();
 
-        return AvailableTimeAndPlaceResponse.create(yoilList, timeList, markersList);
+        return AvailableTimeAndPlaceResponse.create(yoilList, timeList, markersList, location);
     }
 
 
