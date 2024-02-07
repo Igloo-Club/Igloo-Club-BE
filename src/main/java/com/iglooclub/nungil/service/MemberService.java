@@ -79,7 +79,6 @@ public class MemberService {
         // == 데이터베이스의 데이터들 중, 요청된 수정값이 아닌 값들을 모두 삭제한다. == //
         faceDepictionAllocationRepository.deleteAllByFaceDepictionNotIn(request.getFaceDepictionList());
         personalityDepictionAllocationRepository.deleteAllByPersonalityDepictionNotIn(request.getPersonalityDepictionList());
-        markerAllocationRepository.deleteAllByMarkerNotIn(request.getMarkerList());
         hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
 
         // == 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. == //
@@ -99,14 +98,6 @@ public class MemberService {
             }
         }
 
-        List<MarkerAllocation> nonExistingMarkers = new ArrayList<>();
-        for (Marker marker : request.getMarkerList()) {
-            if (!member.getMarkerList().contains(marker)) {
-                nonExistingMarkers.add(MarkerAllocation.builder()
-                        .marker(marker).member(member).build());
-            }
-        }
-
         List<HobbyAllocation> nonExistingHobbies = new ArrayList<>();
         for (Hobby hobby : request.getHobbyList()) {
             if (!member.getHobbyList().contains(hobby)) {
@@ -115,7 +106,7 @@ public class MemberService {
             }
         }
 
-        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingHobbies);
+        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingHobbies);
     }
 
     @Transactional
