@@ -1,5 +1,6 @@
 package com.iglooclub.nungil.controller;
 
+import com.iglooclub.nungil.config.jwt.TokenProvider;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.ChatMessageService;
@@ -10,15 +11,20 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
+
+import static com.iglooclub.nungil.util.TokenUtil.HEADER_AUTHORIZATION;
+import static com.iglooclub.nungil.util.TokenUtil.getAccessToken;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,9 +36,13 @@ public class ChatMessageController {
 
     private final MemberService memberService;
 
+    private final TokenProvider tokenProvider;
+
     @MessageMapping("/send")
-    public void send(@Payload ChatDTO chatDTO, Principal principal) {
-        Member member = getMember(principal);
+    public void send(@Payload ChatDTO chatDTO, @Header(HEADER_AUTHORIZATION) String authorizationHeader) {
+        String accessToken = getAccessToken(authorizationHeader);
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        Member member = getMember(authentication);
 
         ChatDTO mappedChat = chatMessageService.save(chatDTO, member);
 
