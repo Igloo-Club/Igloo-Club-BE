@@ -69,7 +69,5 @@ public class ProfileUpdateRequest {
     @Size(max = 300)
     private String description;
 
-    private List<Marker> markerList;
-
     private List<Hobby> hobbyList;
 }
