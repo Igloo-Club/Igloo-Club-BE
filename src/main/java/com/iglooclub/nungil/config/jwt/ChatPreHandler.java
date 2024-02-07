@@ -11,13 +11,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import static com.iglooclub.nungil.util.TokenUtil.*;
+
 @RequiredArgsConstructor
 @Component
 public class ChatPreHandler implements ChannelInterceptor {
 
     private final TokenProvider tokenProvider;
-    private final static String HEADER_AUTHORIZATION = "Authorization";
-    private final static String TOKEN_PREFIX = "Bearer ";
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -40,12 +40,5 @@ public class ChatPreHandler implements ChannelInterceptor {
         }
 
         return message;
-    }
-
-    private String getAccessToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith(TOKEN_PREFIX)) {
-            return authorizationHeader.substring(TOKEN_PREFIX.length());
-        }
-        return null;
     }
 }
