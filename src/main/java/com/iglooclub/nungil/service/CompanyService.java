@@ -68,13 +68,13 @@ public class CompanyService {
      * 인증번호를 생성하고, 주어진 회사 이메일로 발송하는 메서드이다.
      * @param email 회사 이메일
      */
-    public void sendAuthEmail(String email) {
+    public void sendAuthEmail(String email, Member member) {
 
         // 사용이 불가능한 회사 도메인인지 확인한다.
         validateEmail(extractDomain(email));
 
         // 이미 가입된 이메일인지 확인한다.
-        checkDuplicatedEmail(email);
+        checkDuplicatedEmail(email, member);
 
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
         String code = RandomStringUtil.numeric(6);
@@ -107,7 +107,7 @@ public class CompanyService {
         validateEmail(companyDomain);
 
         // 이미 가입된 이메일인지 확인한다.
-        checkDuplicatedEmail(email);
+        checkDuplicatedEmail(email, member);
 
         // 요청된 회사 이메일을 키로 갖는 인증번호가 없거나 만료된 경우
         String foundCode = redisUtil.get(email);
@@ -132,14 +132,24 @@ public class CompanyService {
     }
 
     /**
-     * 주어진 email을 사용하는 회원이 존재하는지 확인하고, 이미 존재한다면 예외를 발생시키는 메서드이다.
+     * 주어진 email을 사용하는 회원이 존재하는지 확인하고, 다른 사람이 이미 사용한다면 예외를 발생시키는 메서드이다.
      * @param email 회원 이메일
+     * @param requester 이메일 전송 요청자
      */
-    private void checkDuplicatedEmail(String email) {
-        Optional<Member> member = memberRepository.findByEmail(email);
-        if (member.isPresent()) {
-            throw new GeneralException(MemberErrorResult.DUPLICATED_EMAIL);
+    private void checkDuplicatedEmail(String email, Member requester) {
+        Optional<Member> optional = memberRepository.findByEmail(email);
+        // 주어진 email을 사용하는 회원이 존재하지 않으면 종료
+        if (optional.isEmpty()) {
+            return;
         }
+
+        // 주어진 email을 사용하는 회원이 자기자신이면 종료
+        Member member = optional.get();
+        if (member.getId().equals(requester.getId())) {
+            return;
+        }
+
+        throw new GeneralException(MemberErrorResult.DUPLICATED_EMAIL);
     }
 
     /**
