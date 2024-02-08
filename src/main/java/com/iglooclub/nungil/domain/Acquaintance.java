@@ -1,6 +1,6 @@
 package com.iglooclub.nungil.domain;
 
-import com.iglooclub.nungil.domain.enums.AcquaintanceStatus;
+import com.iglooclub.nungil.domain.enums.NungilStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,10 +22,10 @@ public class Acquaintance {
     private Member acquaintanceMember;
 
     @Enumerated(EnumType.STRING)
-    private AcquaintanceStatus status;
+    private NungilStatus status;
 
     // == 생성 메서드 == //
-    public static Acquaintance create(Member member, Member acquaintanceMember, AcquaintanceStatus status) {
+    public static Acquaintance create(Member member, Member acquaintanceMember, NungilStatus status) {
         Acquaintance acquaintance = new Acquaintance();
 
         acquaintance.member = member;
@@ -37,7 +37,7 @@ public class Acquaintance {
 
     // == 비즈니스 로직 == //
 
-    public void update(AcquaintanceStatus status) {
+    public void update(NungilStatus status) {
         this.status = status;
     }
 }

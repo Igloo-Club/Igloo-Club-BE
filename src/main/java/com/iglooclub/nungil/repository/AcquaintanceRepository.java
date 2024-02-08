@@ -2,7 +2,6 @@ package com.iglooclub.nungil.repository;
 
 import com.iglooclub.nungil.domain.Acquaintance;
 import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.domain.enums.AcquaintanceStatus;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,5 +18,7 @@ public interface AcquaintanceRepository extends JpaRepository<Acquaintance, Long
 
     @Modifying
     @Query("delete from Acquaintance a where a.status = :status")
-    void deleteAllByStatus(@Param("status") AcquaintanceStatus status);
+    void deleteAllByStatus(@Param("status") NungilStatus status);
+
+    Long countByMemberAndStatus(Member member, NungilStatus status);
 }

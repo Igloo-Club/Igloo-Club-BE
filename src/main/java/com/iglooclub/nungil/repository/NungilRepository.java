@@ -27,6 +27,4 @@ public interface NungilRepository extends JpaRepository<Nungil, Long> {
     @Modifying
     @Query("delete from Nungil n where n.expiredAt <= :dateTime")
     void deleteAllByExpiredAtBefore(@Param("dateTime") LocalDateTime dateTime);
-
-    Long countByMemberAndStatus(Member member, NungilStatus status);
 }

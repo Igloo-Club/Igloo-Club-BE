@@ -93,7 +93,7 @@ public class NungilService {
      * @return 초과한 경우 true, 제한 횟수가 남은 경우 false
      */
     private boolean checkLimitExcess(Member member) {
-        Long count = nungilRepository.countByMemberAndStatus(member, NungilStatus.RECOMMENDED);
+        Long count = acquaintanceRepository.countByMemberAndStatus(member, NungilStatus.RECOMMENDED);
         return RECOMMENDATION_LIMIT <= count;
     }
 
@@ -200,11 +200,11 @@ public class NungilService {
 
         // 서로에 대한 Acquaintance 객체 생성 및 저장
         Acquaintance acquaintanceFromMember = getAcquaintance(member, sender);
-        acquaintanceFromMember.update(AcquaintanceStatus.MATCHED);
+        acquaintanceFromMember.update(NungilStatus.MATCHED);
         acquaintanceRepository.save(acquaintanceFromMember);
 
         Acquaintance acquaintanceFromSender = getAcquaintance(sender, member);
-        acquaintanceFromSender.update(AcquaintanceStatus.MATCHED);
+        acquaintanceFromSender.update(NungilStatus.MATCHED);
         acquaintanceRepository.save(acquaintanceFromSender);
 
         String marker = null;
@@ -266,7 +266,7 @@ public class NungilService {
     @Transactional
     public void deleteRecommendedNungils() {
         nungilRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);
-        acquaintanceRepository.deleteAllByStatus(AcquaintanceStatus.RECOMMENDED);
+        acquaintanceRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);
     }
 
     private Member getMember(Principal principal) {
@@ -381,6 +381,6 @@ public class NungilService {
      */
     private Acquaintance getAcquaintance(Member member, Member acquaintanceMember) {
         return acquaintanceRepository.findByMemberAndAcquaintanceMember(member, acquaintanceMember)
-                .orElse(Acquaintance.create(member, acquaintanceMember, AcquaintanceStatus.RECOMMENDED));
+                .orElse(Acquaintance.create(member, acquaintanceMember, NungilStatus.RECOMMENDED));
     }
 }
