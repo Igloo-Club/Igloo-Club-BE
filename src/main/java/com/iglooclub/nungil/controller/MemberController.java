@@ -52,8 +52,9 @@ public class MemberController {
     }
 
     @PostMapping("/api/member/phone/authentication")
-    public ResponseEntity<?> sendAuthMessage(@RequestBody MessageAuthenticationRequest request) {
-        memberService.sendAuthMessage(request);
+    public ResponseEntity<?> sendAuthMessage(@RequestBody MessageAuthenticationRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.sendAuthMessage(request, member);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
