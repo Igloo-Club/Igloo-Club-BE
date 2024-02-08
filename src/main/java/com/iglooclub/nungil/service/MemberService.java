@@ -122,12 +122,12 @@ public class MemberService {
      * 인증번호를 생성하고, 주어진 전화번호로 인증문자를 전송하는 메서드이다.
      * @param request 인증 요청 DTO
      */
-    public void sendAuthMessage(MessageAuthenticationRequest request) {
+    public void sendAuthMessage(MessageAuthenticationRequest request, Member member) {
 
         String phoneNumber = request.getPhoneNumber();
 
         // 이미 가입된 전화번호인지 확인한다.
-        checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedPhoneNumber(phoneNumber, member);
 
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
         String code = RandomStringUtil.numeric(6);
@@ -153,7 +153,7 @@ public class MemberService {
         String phoneNumber = request.getPhoneNumber();
 
         // 이미 가입된 이메일인지 확인한다.
-        checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedPhoneNumber(phoneNumber, member);
 
         // 요청된 전화번호를 키로 갖는 인증번호가 없거나 만료된 경우
         String foundCode = redisUtil.get(phoneNumber);
@@ -171,14 +171,24 @@ public class MemberService {
     }
 
     /**
-     * 주어진 전화번호를 사용하는 회원이 존재하는지 확인하고, 이미 존재한다면 예외를 발생시키는 메서드이다.
+     * 주어진 전화번호를 사용하는 회원이 존재하는지 확인하고, 다른 사람이 이미 사용한다면 예외를 발생시키는 메서드이다.
      * @param phoneNumber 회원 전화번호
+     * @param requester 요청한 회원 엔티티
      */
-    private void checkDuplicatedPhoneNumber(String phoneNumber) {
-        Optional<Member> member = memberRepository.findByPhoneNumber(phoneNumber);
-        if (member.isPresent()) {
-            throw new GeneralException(MemberErrorResult.DUPLICATED_PHONENUMBER);
+    private void checkDuplicatedPhoneNumber(String phoneNumber, Member requester) {
+        Optional<Member> optional = memberRepository.findByPhoneNumber(phoneNumber);
+        // 주어진 전화번호를 사용하는 회원이 존재하지 않으면 종료
+        if (optional.isEmpty()) {
+            return;
         }
+
+        // 주어진 전화번호를 사용하는 회원이 자기자신이면 종료
+        Member member = optional.get();
+        if (member.getId().equals(requester.getId())) {
+            return;
+        }
+
+        throw new GeneralException(MemberErrorResult.DUPLICATED_PHONENUMBER);
     }
 
     /**
