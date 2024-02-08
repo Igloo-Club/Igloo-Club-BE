@@ -20,10 +20,12 @@ public class ChatRoomDetailResponse {
 
     private String job;
 
+    private Long ownMemberId;
+
     private Slice<ChatMessageListResponse> messageSlice;
 
 
-    public static ChatRoomDetailResponse create(Member opponent, Slice<ChatMessageListResponse> messageSlice) {
+    public static ChatRoomDetailResponse create(Member member, Member opponent, Slice<ChatMessageListResponse> messageSlice) {
         ChatRoomDetailResponse response = new ChatRoomDetailResponse();
 
         AnimalFace animalFace = opponent.getAnimalFace();
@@ -34,6 +36,8 @@ public class ChatRoomDetailResponse {
 
         response.nickname = opponent.getNickname();
         response.job = opponent.getJob();
+
+        response.ownMemberId = member.getId();
 
         response.messageSlice = messageSlice;
 

@@ -50,7 +50,7 @@ public class ChatMessageService {
         ChatMessage chatMessage = ChatMessage.create(chatRoom, member, chatDTO.getContent());
         chatMessageRepository.save(chatMessage);
 
-        return ChatDTO.of(chatDTO.getChatRoomId(), member.getNickname(), chatMessage);
+        return ChatDTO.of(chatDTO.getChatRoomId(), member, chatMessage);
     }
 
     /**
@@ -78,7 +78,7 @@ public class ChatMessageService {
         Member opponent = getOpponent(chatRoom, member);
 
         // 3. 채팅방의 상세 정보 반환
-        return ChatRoomDetailResponse.create(opponent, reversedMessageSlice);
+        return ChatRoomDetailResponse.create(member, opponent, reversedMessageSlice);
     }
 
     private Member getOpponent(ChatRoom chatRoom, Member member) {

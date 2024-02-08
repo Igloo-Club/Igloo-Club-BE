@@ -38,8 +38,10 @@ public class CompanyController {
      * @param request 회사 이메일이 포함된 DTO
      */
     @PostMapping("/email")
-    public ResponseEntity<?> sendAuthEmail(@RequestBody CompanyEmailRequest request) {
-        companyService.sendAuthEmail(request.getEmail());
+    public ResponseEntity<?> sendAuthEmail(@RequestBody CompanyEmailRequest request, Principal principal) {
+        Member member = getMember(principal);
+
+        companyService.sendAuthEmail(request.getEmail(), member);
 
         return ResponseEntity.ok(null);
     }
@@ -51,10 +53,14 @@ public class CompanyController {
      */
     @PostMapping("/verification")
     public ResponseEntity<?> verifyAuthCode(@RequestBody CompanyVerificationRequest request, Principal principal) {
-        Member member = memberService.findById(Long.parseLong(principal.getName()));
+        Member member = getMember(principal);
 
         companyService.verifyAuthCode(request, member);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Member getMember(Principal principal) {
+        return memberService.findById(Long.parseLong(principal.getName()));
     }
 }

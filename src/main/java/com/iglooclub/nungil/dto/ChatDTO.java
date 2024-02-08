@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.dto;
 
 import com.iglooclub.nungil.domain.ChatMessage;
+import com.iglooclub.nungil.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,13 @@ public class ChatDTO {
     private String sender;
     private String content;
     private LocalDateTime createdAt;
+    private Long senderId;
 
-    public static ChatDTO of(Long chatRoomId, String nickname, ChatMessage chatMessage) {
+    public static ChatDTO of(Long chatRoomId, Member member, ChatMessage chatMessage) {
         return new ChatDTO(chatRoomId,
-                nickname,
+                member.getNickname(),
                 chatMessage.getContent(),
-                chatMessage.getCreatedAt());
+                chatMessage.getCreatedAt(),
+                member.getId());
     }
 }
