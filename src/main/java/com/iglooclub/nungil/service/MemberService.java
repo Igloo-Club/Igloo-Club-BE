@@ -126,21 +126,21 @@ public class MemberService {
 
         String phoneNumber = request.getPhoneNumber();
 
-        // 이미 가입된 이메일인지 확인한다.
+        // 이미 가입된 전화번호인지 확인한다.
         checkDuplicatedPhoneNumber(phoneNumber);
 
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
         String code = RandomStringUtil.numeric(6);
         String text = "[눈길] 인증번호 [" + code + "]를 입력해주세요";
 
-        // 이메일을 발송한다.
-        coolSMS.send(phoneNumber, text);
-
-        // redis에 이메일을 키로 하여 인증번호를 저장한다.
+        // redis에 전화번호를 키로 하여 인증번호를 저장한다.
         if (redisUtil.exists(phoneNumber)) {
             redisUtil.delete(phoneNumber);
         }
         redisUtil.set(phoneNumber, code, Duration.ofMinutes(5));
+
+        // 인증문자를 발송한다.
+        coolSMS.send(phoneNumber, text);
     }
 
     /**

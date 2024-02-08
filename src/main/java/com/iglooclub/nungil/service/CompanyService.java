@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,20 +76,20 @@ public class CompanyService {
         // 이미 가입된 이메일인지 확인한다.
         checkDuplicatedEmail(email);
 
-        String subject = "[눈길] 회사 인증 메일입니다.";
-        String filename = "company-authentication.html";
-
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
         String code = RandomStringUtil.numeric(6);
-
-        // 이메일을 발송한다.
-        emailSender.send(EmailMessage.create(email, subject, filename).addContext("code", code));
 
         // redis에 이메일을 키로 하여 인증번호를 저장한다.
         if (redisUtil.exists(email)) {
             redisUtil.delete(email);
         }
         redisUtil.set(email, code, Duration.ofMinutes(5));
+
+        // 이메일을 발송한다.
+        String subject = "[눈길] 회사 인증 메일입니다.";
+        String filename = "company-authentication.html";
+
+        emailSender.send(EmailMessage.create(email, subject, filename).addContext("code", code));
     }
 
     /**
