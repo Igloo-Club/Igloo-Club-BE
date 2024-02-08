@@ -4,6 +4,7 @@ import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.GeneralException;
+import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.exception.NungilErrorResult;
 import com.iglooclub.nungil.repository.AcquaintanceRepository;
 import com.iglooclub.nungil.repository.ChatRoomRepository;
@@ -114,8 +115,15 @@ public class NungilService {
 
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
+                .filter(nungil -> nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()) &&
+                        member.getLocation() != null && nungil.getReceiver().getLocation() != null)
                 .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
                 .collect(Collectors.toList());
+
+        if (member.getLocation() == null || nungilSlice.getContent().stream()
+                .anyMatch(nungil -> member.getLocation() == null || nungil.getReceiver().getLocation() == null)) {
+            throw new GeneralException(MemberErrorResult.Location_Not_Found);
+        }
 
         // 변환된 DTO 리스트와 함께 새로운 Slice 객체를 생성하여 반환
         return new SliceImpl<>(nungilResponses, pageRequest, nungilSlice.hasNext());
