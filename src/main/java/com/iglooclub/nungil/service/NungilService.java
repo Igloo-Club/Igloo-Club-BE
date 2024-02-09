@@ -113,17 +113,19 @@ public class NungilService {
         // Nungil 엔티티를 데이터베이스에서 조회
         Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, status);
 
+        if (member.getLocation() == null || nungilSlice.getContent().stream()
+                .anyMatch(nungil -> member.getLocation() == null || nungil.getReceiver().getLocation() == null)) {
+            throw new GeneralException(MemberErrorResult.LOCATION_NOT_FOUND);
+        }
+
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
-                .filter(nungil -> nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()) &&
-                        member.getLocation() != null && nungil.getReceiver().getLocation() != null)
+                .filter(nungil -> member.getLocation() != null &&
+                        nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()))
                 .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
                 .collect(Collectors.toList());
 
-        if (member.getLocation() == null || nungilSlice.getContent().stream()
-                .anyMatch(nungil -> member.getLocation() == null || nungil.getReceiver().getLocation() == null)) {
-            throw new GeneralException(MemberErrorResult.Location_Not_Found);
-        }
+
 
         // 변환된 DTO 리스트와 함께 새로운 Slice 객체를 생성하여 반환
         return new SliceImpl<>(nungilResponses, pageRequest, nungilSlice.hasNext());
