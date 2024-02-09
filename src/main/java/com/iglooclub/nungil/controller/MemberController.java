@@ -65,6 +65,13 @@ public class MemberController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PatchMapping("/api/member/location")
+    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest request, Principal principal){
+        Member member = getMember(principal);
+        memberService.updateLocation(request,member);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Member getMember(Principal principal) {
         return memberService.findById(Long.parseLong(principal.getName()));
     }

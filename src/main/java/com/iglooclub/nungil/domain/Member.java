@@ -310,6 +310,8 @@ public class Member {
         this.phoneNumber = phoneNumber;
     }
 
+    public void updateLocation(Location location) {this.location = location;}
+
 
     // List를 String으로 변환하는 메서드
     public String getFaceDepictionAllocationsAsString() {
