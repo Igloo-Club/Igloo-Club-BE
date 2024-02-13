@@ -281,7 +281,7 @@ public class Member {
         this.company = company;
     }
 
-    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList) {
+    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList, List<Marker> markerList) {
         List<AvailableTimeAllocation> newAvailableTimeAllocationList = availableTimeList.stream()
                 .map(v -> AvailableTimeAllocation.builder().availableTime(v).member(this).build())
                 .collect(Collectors.toList());
@@ -293,9 +293,10 @@ public class Member {
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
 
         //===== 사용자가 마커 선택하는 API 추가 시 삭제 =====//
-        List<Marker> markerList = Arrays.stream(Marker.values())
-                .filter(marker -> marker.getLocation() == location)
-                .collect(Collectors.toList());
+//        List<Marker> markerList = Arrays.stream(Marker.values())
+//                .filter(marker -> marker.getLocation() == location)
+//                .collect(Collectors.toList());
+
         List<MarkerAllocation> newMarkerAllocationList = markerList.stream()
                 .map(v -> MarkerAllocation.builder().marker(v).member(this).build())
                 .collect(Collectors.toList());

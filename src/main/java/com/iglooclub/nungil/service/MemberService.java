@@ -113,7 +113,7 @@ public class MemberService {
         List<Yoil> sortedYoilList = request.getYoilList();
         Collections.sort(sortedYoilList);
 
-        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
+        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList(), request.getMarkerList());
     }
 
     /**
