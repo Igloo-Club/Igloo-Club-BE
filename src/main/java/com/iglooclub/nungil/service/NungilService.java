@@ -241,10 +241,15 @@ public class NungilService {
      * @param nungilId 눈길 id
      * @response nungilMatchResponse 눈길 매칭 정보
      */
-    public NungilMatchResponse getMatchedNungil(Long nungilId){
+    public NungilMatchResponse getMatchedNungil(Long nungilId, Member member){
 
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
+
+        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인한다.
+        if (!nungil.getMember().equals(member)) {
+            throw new GeneralException(MemberErrorResult.NOT_OWNER);
+        }
 
         // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환한다.
         Long chatRoomId = chatRoomRepository.findByMembers(nungil.getMember(), nungil.getReceiver())
