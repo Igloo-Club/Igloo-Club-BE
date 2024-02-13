@@ -12,6 +12,7 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +118,7 @@ public class Member {
     @Builder.Default
     private List<Yoil> yoilList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MarkerAllocation> markerAllocationList = new ArrayList<>();
 
@@ -173,13 +174,11 @@ public class Member {
      * @param request 프로필 수정 요청 DTO
      * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      */
     public void updateProfile(ProfileUpdateRequest request,
                               List<FaceDepictionAllocation> nonExistingFaceDepictions,
                               List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
-                              List<MarkerAllocation> nonExistingMarkers,
                               List<HobbyAllocation> nonExistingHobbies) {
 
         this.nickname = request.getNickname();
@@ -199,8 +198,6 @@ public class Member {
         this.faceDepictionAllocationList = nonExistingFaceDepictions;
 
         this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
-
-        this.markerAllocationList = nonExistingMarkers;
 
         this.hobbyAllocationList = nonExistingHobbies;
     }
@@ -294,12 +291,26 @@ public class Member {
 
         this.availableTimeAllocationList.clear();
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
+
+        //===== 사용자가 마커 선택하는 API 추가 시 삭제 =====//
+        List<Marker> markerList = Arrays.stream(Marker.values())
+                .filter(marker -> marker.getLocation() == location)
+                .collect(Collectors.toList());
+        List<MarkerAllocation> newMarkerAllocationList = markerList.stream()
+                .map(v -> MarkerAllocation.builder().marker(v).member(this).build())
+                .collect(Collectors.toList());
+
+        this.markerAllocationList.clear();
+        this.markerAllocationList.addAll(newMarkerAllocationList);
+        //=============================================//
     }
 
 
     public void updatePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public void updateLocation(Location location) {this.location = location;}
 
 
     // List를 String으로 변환하는 메서드

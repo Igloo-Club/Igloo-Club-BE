@@ -2,6 +2,7 @@ package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.config.jwt.TokenProvider;
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.domain.enums.RegisterProgress;
 import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.TokenErrorResult;
@@ -17,6 +18,8 @@ public class TokenService {
     private final RefreshTokenService refreshTokenService;
     private final MemberService memberService;
 
+    private final OauthService oauthService;
+
     public LoginResponse createNewAccessToken(String refreshToken) {
         // 토큰 유효성 검사에 실패하면 예외 발생
         if (!tokenProvider.validateToken(refreshToken)) {
@@ -25,11 +28,11 @@ public class TokenService {
 
         Long memberId = refreshTokenService.findByRefreshToken(refreshToken).getMemberId();
         Member member = memberService.findById(memberId);
-        //회원 프로필 등록 여부 판별
-        Boolean isProfileRegistered = member.getNickname() != null;
+        // 현재 사용자의 가입 절차 탐색
+        RegisterProgress nextProgress = oauthService.getNextProgress(member);
 
         String token = tokenProvider.generateToken(member, Duration.ofHours(2));
 
-        return new LoginResponse(token, isProfileRegistered);
+        return new LoginResponse(token, nextProgress.getTitle(), RegisterProgress.REGISTERED.equals(nextProgress));
     }
 }
