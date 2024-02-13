@@ -156,6 +156,8 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member receiver = nungil.getReceiver();
+        Acquaintance memberAcquaintance = getAcquaintance(member, receiver);
+        Acquaintance receiverAcquaintance = getAcquaintance(receiver, member);
 
         if(!nungil.getStatus().equals(NungilStatus.RECOMMENDED)){
             throw new GeneralException(NungilErrorResult.NUNGIL_WRONG_STATUS);
@@ -170,10 +172,13 @@ public class NungilService {
         //사용자의 눈길 상태를 SENT, 만료일을 일주일 뒤로 설정
         nungil.setStatus(NungilStatus.SENT);
         nungil.setExpiredAt7DaysAfter();
+        memberAcquaintance.update(NungilStatus.SENT);
+
 
         //눈길 받는 사용자 눈길 객체 생성 및 저장
         Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
         newNungil.setExpiredAt7DaysAfter();
+        receiverAcquaintance.update(NungilStatus.RECEIVED);
         nungilRepository.save(newNungil);
     }
 
@@ -268,6 +273,7 @@ public class NungilService {
     public void deleteExpiredNungils() {
         LocalDateTime now = LocalDateTime.now();
         nungilRepository.deleteAllByExpiredAtBefore(now);
+        acquaintanceRepository.deleteAllByExpiredAtBefore(now);
     }
 
     /**

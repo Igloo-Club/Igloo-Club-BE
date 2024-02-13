@@ -4,6 +4,7 @@ import com.iglooclub.nungil.domain.enums.NungilStatus;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -24,6 +25,12 @@ public class Acquaintance {
     @Enumerated(EnumType.STRING)
     private NungilStatus status;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime sentAt;
+
+    private LocalDateTime expiredAt;
+
     // == 생성 메서드 == //
     public static Acquaintance create(Member member, Member acquaintanceMember, NungilStatus status) {
         Acquaintance acquaintance = new Acquaintance();
@@ -31,7 +38,11 @@ public class Acquaintance {
         acquaintance.member = member;
         acquaintance.acquaintanceMember = acquaintanceMember;
         acquaintance.status = status;
-
+        acquaintance.createdAt = LocalDateTime.now();
+        if(NungilStatus.RECEIVED.equals(status)){
+            acquaintance.sentAt = LocalDateTime.now();
+            acquaintance.expiredAt = acquaintance.sentAt.plusDays(7);
+        }
         return acquaintance;
     }
 
@@ -39,5 +50,7 @@ public class Acquaintance {
 
     public void update(NungilStatus status) {
         this.status = status;
+        this.sentAt = LocalDateTime.now();
+        this.expiredAt = this.sentAt.plusDays(7);
     }
 }
