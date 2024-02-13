@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,4 +22,8 @@ public interface AcquaintanceRepository extends JpaRepository<Acquaintance, Long
     void deleteAllByStatus(@Param("status") NungilStatus status);
 
     Long countByMemberAndStatus(Member member, NungilStatus status);
+
+    @Modifying
+    @Query("delete from Acquaintance a where a.expiredAt <= :dateTime")
+    void deleteAllByExpiredAtBefore(LocalDateTime now);
 }
