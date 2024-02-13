@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -210,6 +208,17 @@ public class MemberService {
     @Transactional
     public void updateLocation(LocationRequest locationRequest, Member member){
         member.updateLocation(locationRequest.getLocation());
+    }
+
+    /**
+     * 모든 마커 정보를 조회하는 메서드이다.
+     *
+     */
+    public List<MarkerDTO> getAllMarkers() {
+        List<MarkerDTO> markerList = Arrays.asList(Marker.values()).stream()
+                .map(marker -> MarkerDTO.create(marker))
+                .collect(Collectors.toList());
+        return markerList;
     }
 
 }
