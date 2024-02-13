@@ -25,5 +25,5 @@ public interface AcquaintanceRepository extends JpaRepository<Acquaintance, Long
 
     @Modifying
     @Query("delete from Acquaintance a where a.expiredAt <= :now")
-    void deleteAllByExpiredAtBefore(LocalDateTime now);
+    void deleteAllByExpiredAtBefore(@Param("now") LocalDateTime now);
 }
