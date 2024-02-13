@@ -24,6 +24,6 @@ public interface AcquaintanceRepository extends JpaRepository<Acquaintance, Long
     Long countByMemberAndStatus(Member member, NungilStatus status);
 
     @Modifying
-    @Query("delete from Acquaintance a where a.expiredAt <= :dateTime")
+    @Query("delete from Acquaintance a where a.expiredAt <= :now")
     void deleteAllByExpiredAtBefore(LocalDateTime now);
 }

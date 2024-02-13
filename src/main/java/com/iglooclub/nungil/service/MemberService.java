@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -115,7 +113,7 @@ public class MemberService {
         List<Yoil> sortedYoilList = request.getYoilList();
         Collections.sort(sortedYoilList);
 
-        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
+        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList(), request.getMarkerList());
     }
 
     /**
@@ -210,6 +208,18 @@ public class MemberService {
     @Transactional
     public void updateLocation(LocationRequest locationRequest, Member member){
         member.updateLocation(locationRequest.getLocation());
+    }
+
+    /**
+     * 모든 마커 정보를 조회하는 메서드이다.
+     * @param location 반환 마커 소재지
+     */
+    public List<MarkerDTO> getAllMarkers(Location location) {
+        List<MarkerDTO> markerList = Arrays.asList(Marker.values()).stream()
+                .filter(marker -> marker.getLocation() == location)
+                .map(marker -> MarkerDTO.create(marker))
+                .collect(Collectors.toList());
+        return markerList;
     }
 
 }
