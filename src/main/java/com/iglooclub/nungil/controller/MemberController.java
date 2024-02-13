@@ -1,7 +1,7 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
-import com.iglooclub.nungil.domain.enums.Marker;
+import com.iglooclub.nungil.domain.enums.Location;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -75,8 +75,8 @@ public class MemberController {
     }
 
     @GetMapping("/api/markers")
-    public List<MarkerDTO> getAllMarkers(){
-        return memberService.getAllMarkers();
+    public List<MarkerDTO> getAllMarkers(@RequestParam Location location){
+        return memberService.getAllMarkers(location);
     }
 
     private Member getMember(Principal principal) {
