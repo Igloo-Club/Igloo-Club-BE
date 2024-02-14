@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class MarkerDTO {
     private String title;
 
+    private String address;
+
     private Double latitude;
 
     private Double longitude;
@@ -20,6 +22,7 @@ public class MarkerDTO {
     public static MarkerDTO create(Marker marker){
         MarkerDTO response = new MarkerDTO();
         response.title = marker.getTitle();
+        response.address = marker.getAddress();
         response.latitude = marker.getLatitude();
         response.longitude = marker.getLongitude();
         return response;
