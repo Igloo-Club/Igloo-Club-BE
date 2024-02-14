@@ -39,6 +39,7 @@ public class Nungil {
     private Member receiver;
 
     @Nullable
+    @Enumerated(EnumType.STRING)
     private Yoil matchedYoil;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
@@ -47,6 +48,7 @@ public class Nungil {
     private List<Marker> matchedMarkers = new ArrayList<>();
 
     @Nullable
+    @Enumerated(EnumType.STRING)
     private AvailableTime matchedAvailableTime;
 
     // == 정적 생성 메서드 == //
