@@ -8,7 +8,6 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 public class MemberDetailResponse {
     private String nickname;
 
-    private String sex;
+    private Sex sex;
 
     private LocalDate birthdate;
 
@@ -24,7 +23,7 @@ public class MemberDetailResponse {
 
     private String contactInstagram;
 
-    private String animalFace;
+    private AnimalFace animalFace;
 
     private String job;
 
@@ -32,55 +31,50 @@ public class MemberDetailResponse {
 
     private Mbti mbti;
 
-    private String marriageState;
+    private MarriageState marriageState;
 
-    private String religion;
+    private Religion religion;
 
-    private String alcohol;
+    private Alcohol alcohol;
 
-    private String smoke;
+    private Smoke smoke;
 
-    private List<String> faceDepictionList;
+    private List<FaceDepiction> faceDepictionList;
 
-    private List<String> personalityDepictionList;
+    private List<PersonalityDepiction> personalityDepictionList;
 
     private String description;
 
-    private List<String> markerList;
+    private List<Marker> markerList;
 
-    private List<String> availableTimeList;
+    private List<AvailableTime> availableTimeList;
 
-    private List<String> hobbyList;
+    private List<Hobby> hobbyList;
 
     private Boolean disableCompany;
 
     // == 생성 메서드 == //
     public static MemberDetailResponse create(Member member) {
-        List<String> faceDepictionList = member.getFaceDepictionAllocationList().stream()
-                .map(v -> v.getFaceDepiction().getTitle()).collect(Collectors.toList());
-        List<String> personalityDepictionList = member.getPersonalityDepictionAllocationList().stream()
-                .map(v -> v.getPersonalityDepiction().getTitle()).collect(Collectors.toList());
-        List<String> markerList = member.getMarkerAllocationList().stream()
-                .map(v -> v.getMarker().getTitle()).collect(Collectors.toList());
-        List<String> availableTimeList = member.getAvailableTimeAllocationList().stream()
-                .map(v -> v.getAvailableTime().getTitle()).collect(Collectors.toList());
-        List<String> hobbyList = member.getHobbyAllocationList().stream()
-                .map(v -> v.getHobby().getTitle()).collect(Collectors.toList());
+        List<FaceDepiction> faceDepictionList = member.getFaceDepictionList();
+        List<PersonalityDepiction> personalityDepictionList = member.getPersonalityDepictionList();
+        List<Marker> markerList = member.getMarkerList();
+        List<AvailableTime> availableTimeList = member.getAvailableTimeList();
+        List<Hobby> hobbyList = member.getHobbyList();
 
         return MemberDetailResponse.builder()
                 .nickname(member.getNickname())
-                .sex(member.getSex().getTitle())
+                .sex(member.getSex())
                 .birthdate(member.getBirthdate())
                 .contactKakao(member.getContact().getKakao())
                 .contactInstagram(member.getContact().getInstagram())
-                .animalFace(member.getAnimalFace().getTitle())
+                .animalFace(member.getAnimalFace())
                 .job(member.getJob())
                 .height(member.getHeight())
                 .mbti(member.getMbti())
-                .marriageState(member.getMarriageState().getTitle())
-                .religion(member.getReligion().getTitle())
-                .alcohol(member.getAlcohol().getTitle())
-                .smoke(member.getSmoke().getTitle())
+                .marriageState(member.getMarriageState())
+                .religion(member.getReligion())
+                .alcohol(member.getAlcohol())
+                .smoke(member.getSmoke())
                 .faceDepictionList(faceDepictionList)
                 .personalityDepictionList(personalityDepictionList)
                 .description(member.getDescription())

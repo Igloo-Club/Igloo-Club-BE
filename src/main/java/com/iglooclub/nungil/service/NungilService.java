@@ -222,17 +222,14 @@ public class NungilService {
         acquaintanceFromSender.update(NungilStatus.MATCHED);
         acquaintanceRepository.save(acquaintanceFromSender);
 
-        String marker = null;
-        String time = null;
-        String yoil = null;
-        if(!findCommonMarkers(member, sender).isEmpty()){
-            marker = findCommonMarkers(member, sender).toString();
-        }
-        if(!findCommonAvailableTimes(member, sender).isEmpty()){
-            time = findCommonAvailableTimes(member, sender).get(0).toString();
-        }
-        if(findCommonYoil(member, sender) != null){
-            yoil = findCommonYoil(member, sender).toString();
+        // 매칭된 사용자 간에 겹치는 시간, 마커를 조회하여 저장
+        List<Marker> marker = findCommonMarkers(member, sender);
+        Yoil yoil = findCommonYoil(member, sender);
+        AvailableTime time = null;
+
+        List<AvailableTime> commonAvailableTimes = findCommonAvailableTimes(member, sender);
+        if(!commonAvailableTimes.isEmpty()){
+            time = commonAvailableTimes.get(0);
         }
         receivedNungil.update(marker, time, yoil);
         sentNungil.update(marker, time, yoil);
@@ -249,16 +246,22 @@ public class NungilService {
      * @param nungilId 눈길 id
      * @response nungilMatchResponse 눈길 매칭 정보
      */
-    public NungilMatchResponse getMatchedNungil(Long nungilId){
+    public NungilMatchResponse getMatchedNungil(Long nungilId, Member member){
 
-        Optional<Nungil> optionalNungil = nungilRepository.findById(nungilId);
-        Nungil nungil = optionalNungil.get();
-        NungilMatchResponse response = NungilMatchResponse.builder()
-                .yoil(nungil.getMatchedYoil())
-                .marker(nungil.getMatchedMarkers())
-                .time(nungil.getMatchedAvailableTime())
-                .build();
-        return response;
+        Nungil nungil = nungilRepository.findById(nungilId)
+                .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
+
+        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인한다.
+        if (!nungil.getMember().equals(member)) {
+            throw new GeneralException(MemberErrorResult.NOT_OWNER);
+        }
+
+        // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환한다.
+        Long chatRoomId = chatRoomRepository.findByMembers(nungil.getMember(), nungil.getReceiver())
+                .map(ChatRoom::getId)
+                .orElse(null);
+
+        return NungilMatchResponse.create(nungil, chatRoomId);
     }
 
     /**
@@ -312,6 +315,7 @@ public class NungilService {
                 .hobbyAllocationList(member.getHobbyAllocationAsString())
                 .build();
     }
+
     //두 사용자의 공통 시간을 추출
     public List<AvailableTime> findCommonAvailableTimes(Member member1, Member member2) {
         List<AvailableTimeAllocation> list1 = member1.getAvailableTimeAllocationList();
