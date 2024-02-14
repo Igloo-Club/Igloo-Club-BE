@@ -19,5 +19,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long>, Pagin
     Slice<ChatRoom> findBySenderOrReceiver(Member sender, Member receiver, Pageable pageable);
 
     @Query("select c from ChatRoom c where (c.sender = :member1 and c.receiver = :member2) or (c.sender = :member2 and c.receiver = :member1)")
-    Optional<ChatRoom> findByMembers(@Param("member1") Member member1, @Param("member2") Member member2);
+    List<ChatRoom> findByMembers(@Param("member1") Member member1, @Param("member2") Member member2);
 }
