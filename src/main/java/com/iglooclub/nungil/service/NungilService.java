@@ -114,14 +114,13 @@ public class NungilService {
         Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, status);
 
         if (member.getLocation() == null || nungilSlice.getContent().stream()
-                .anyMatch(nungil -> member.getLocation() == null || nungil.getReceiver().getLocation() == null)) {
+                .anyMatch(nungil -> nungil.getReceiver().getLocation() == null)) {
             throw new GeneralException(MemberErrorResult.LOCATION_NOT_FOUND);
         }
 
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
-                .filter(nungil -> member.getLocation() != null &&
-                        nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()))
+                .filter(nungil -> nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()))
                 .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
                 .collect(Collectors.toList());
 
