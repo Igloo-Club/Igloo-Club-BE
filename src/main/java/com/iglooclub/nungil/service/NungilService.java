@@ -179,6 +179,7 @@ public class NungilService {
         Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
         newNungil.setExpiredAt7DaysAfter();
         receiverAcquaintance.update(NungilStatus.RECEIVED);
+        acquaintanceRepository.save(receiverAcquaintance);
         nungilRepository.save(newNungil);
     }
 
