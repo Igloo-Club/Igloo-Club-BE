@@ -3,6 +3,7 @@ package com.iglooclub.nungil.service;
 import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.*;
+import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.exception.NungilErrorResult;
@@ -240,8 +241,6 @@ public class NungilService {
 
     /**
      * 공통 매칭 정보를 조회하는 api입니다
-     *
-     *
      * @param nungilId 눈길 id
      * @response nungilMatchResponse 눈길 매칭 정보
      */
@@ -255,10 +254,16 @@ public class NungilService {
             throw new GeneralException(MemberErrorResult.NOT_OWNER);
         }
 
+        List<ChatRoom> chatRooms = chatRoomRepository.findByMembers(nungil.getMember(), nungil.getReceiver());
+
+        // chat room 2개 이상일 경우 예외 처리
+        if (chatRooms.size() > 1) {
+            throw new GeneralException(ChatRoomErrorResult.CHAT_ROOM_MORE_THAN_ONE);
+        }
+
         // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환한다.
-        Long chatRoomId = chatRoomRepository.findByMembers(nungil.getMember(), nungil.getReceiver())
-                .map(ChatRoom::getId)
-                .orElse(null);
+        Long chatRoomId = chatRooms.isEmpty() ? null : chatRooms.get(0).getId();
+
 
         return NungilMatchResponse.create(nungil, chatRoomId);
     }
