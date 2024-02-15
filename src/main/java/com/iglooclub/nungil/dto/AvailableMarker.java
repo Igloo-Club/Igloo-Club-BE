@@ -14,6 +14,8 @@ public class AvailableMarker {
 
     private String title;
 
+    private String address;
+
     private Double latitude;
 
     private Double longitude;
@@ -21,6 +23,7 @@ public class AvailableMarker {
     public static AvailableMarker create(Marker marker) {
         AvailableMarker availableMarker = new AvailableMarker();
         availableMarker.title = marker.getTitle();
+        availableMarker.address = marker.getAddress();
         availableMarker.latitude = marker.getLatitude();
         availableMarker.longitude = marker.getLongitude();
         return availableMarker;
