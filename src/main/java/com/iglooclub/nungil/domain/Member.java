@@ -77,7 +77,7 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
-    @Column(length = 400)
+    @Column(length = 1000)
     private String description;
 
     @Builder.Default
