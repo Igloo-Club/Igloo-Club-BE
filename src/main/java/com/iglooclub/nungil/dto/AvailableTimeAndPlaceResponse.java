@@ -22,7 +22,7 @@ public class AvailableTimeAndPlaceResponse {
 
     private List<AvailableMarker> marker;
 
-    private Location location;
+    private String location;
 
     //=== 생성 메서드 ===//
     public static AvailableTimeAndPlaceResponse create(List<Yoil> yoilList,
@@ -35,7 +35,7 @@ public class AvailableTimeAndPlaceResponse {
         response.yoil = yoilList.stream().map(Yoil::getTitle).collect(Collectors.toList());
         response.time = availableTimeList.stream().map(AvailableTime::getTitle).collect(Collectors.toList());
         response.marker = markerList.stream().map(AvailableMarker::create).collect(Collectors.toList());
-        response.location = location;
+        response.location = location.getTitle();
 
         return response;
     }
