@@ -11,7 +11,6 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,6 +96,10 @@ public class Member {
 
     private Integer preferredAgeEnd;
 
+    // 인연 프로필 뽑기 횟수
+    @Builder.Default
+    private Long drawCount = 0L;
+
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
@@ -138,6 +141,7 @@ public class Member {
         this.personalityDepictionAllocationList = new ArrayList<>();
         this.markerAllocationList = new ArrayList<>();
         this.yoilList = new ArrayList<>();
+        this.drawCount = 0L;
     }
 
     // == 비즈니스 로직 == //
@@ -259,13 +263,6 @@ public class Member {
         this.markerAllocationList.add(markerAllocation);
     }
 
-    public void addAvailableTime(AvailableTime availableTime) {
-        AvailableTimeAllocation availableTimeAllocation = AvailableTimeAllocation.builder()
-                .availableTime(availableTime)
-                .member(this)
-                .build();
-        this.availableTimeAllocationList.add(availableTimeAllocation);
-    }
 
     public void addHobby(Hobby hobby) {
         HobbyAllocation hobbyAllocation = HobbyAllocation.builder()
@@ -291,10 +288,6 @@ public class Member {
         this.availableTimeAllocationList.clear();
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
 
-        //===== 사용자가 마커 선택하는 API 추가 시 삭제 =====//
-//        List<Marker> markerList = Arrays.stream(Marker.values())
-//                .filter(marker -> marker.getLocation() == location)
-//                .collect(Collectors.toList());
 
         List<MarkerAllocation> newMarkerAllocationList = markerList.stream()
                 .map(v -> MarkerAllocation.builder().marker(v).member(this).build())
@@ -302,7 +295,6 @@ public class Member {
 
         this.markerAllocationList.clear();
         this.markerAllocationList.addAll(newMarkerAllocationList);
-        //=============================================//
     }
 
 
@@ -311,6 +303,8 @@ public class Member {
     }
 
     public void updateLocation(Location location) {this.location = location;}
+
+    public void plusDrawCount() {this.drawCount += 1L;}
 
 
     // List를 String으로 변환하는 메서드

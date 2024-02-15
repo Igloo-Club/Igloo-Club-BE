@@ -68,7 +68,10 @@ public class NungilService {
         Nungil newNungil = Nungil.create(member, recommendedMember, NungilStatus.RECOMMENDED);
         nungilRepository.save(newNungil);
 
-        // 5. 추천 받은 회원 정보를 반환한다.
+        // 5. 추천이 정상적으로 동작했을 시 drawCount를 1 증가 시킨다.
+        member.plusDrawCount();
+
+        // 6. 추천 받은 회원 정보를 반환한다.
         return convertToNungilResponse(recommendedMember);
     }
 
@@ -95,7 +98,7 @@ public class NungilService {
      * @return 초과한 경우 true, 제한 횟수가 남은 경우 false
      */
     private boolean checkLimitExcess(Member member) {
-        Long count = acquaintanceRepository.countByMemberAndStatus(member, NungilStatus.RECOMMENDED);
+        Long count = member.getDrawCount();
         return RECOMMENDATION_LIMIT <= count;
     }
 
