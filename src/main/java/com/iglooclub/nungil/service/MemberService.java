@@ -225,10 +225,10 @@ public class MemberService {
      * 모든 마커 정보를 조회하는 메서드이다.
      * @param location 반환 마커 소재지
      */
-    public List<MarkerDTO> getAllMarkers(Location location) {
-        List<MarkerDTO> markerList = Arrays.asList(Marker.values()).stream()
+    public List<AvailableMarker> getAllMarkers(Location location) {
+        List<AvailableMarker> markerList = Arrays.asList(Marker.values()).stream()
                 .filter(marker -> marker.getLocation() == location)
-                .map(marker -> MarkerDTO.create(marker))
+                .map(marker -> AvailableMarker.create(marker))
                 .collect(Collectors.toList());
         return markerList;
     }
