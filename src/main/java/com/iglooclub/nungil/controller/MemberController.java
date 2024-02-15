@@ -76,7 +76,7 @@ public class MemberController {
     }
 
     @GetMapping("/api/markers")
-    public List<MarkerDTO> getAllMarkers(@RequestParam Location location){
+    public List<AvailableMarker> getAllMarkers(@RequestParam Location location){
         return memberService.getAllMarkers(location);
     }
 

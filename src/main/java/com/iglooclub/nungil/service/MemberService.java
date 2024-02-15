@@ -10,6 +10,7 @@ import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.*;
 import com.iglooclub.nungil.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -202,6 +203,16 @@ public class MemberService {
     }
 
     /**
+     * 매일 오후 3시에 drawCount = 0으로 초기화
+     *
+     */
+    @Scheduled(cron = "0 0 15 * * *") // 매일 오후 3시에 실행
+    @Transactional
+    public void initMemberDrawCount() {
+        memberRepository.initDrawCount();
+    }
+
+    /**
      * 주어진 회원의 location 필드를 수정하는 메서드이다.
      * @request locationRequest location 정보
      */
@@ -214,10 +225,10 @@ public class MemberService {
      * 모든 마커 정보를 조회하는 메서드이다.
      * @param location 반환 마커 소재지
      */
-    public List<MarkerDTO> getAllMarkers(Location location) {
-        List<MarkerDTO> markerList = Arrays.asList(Marker.values()).stream()
+    public List<AvailableMarker> getAllMarkers(Location location) {
+        List<AvailableMarker> markerList = Arrays.asList(Marker.values()).stream()
                 .filter(marker -> marker.getLocation() == location)
-                .map(marker -> MarkerDTO.create(marker))
+                .map(marker -> AvailableMarker.create(marker))
                 .collect(Collectors.toList());
         return markerList;
     }
