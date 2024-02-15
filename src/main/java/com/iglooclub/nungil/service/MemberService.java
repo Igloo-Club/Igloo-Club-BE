@@ -10,6 +10,7 @@ import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.*;
 import com.iglooclub.nungil.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -199,6 +200,16 @@ public class MemberService {
         Boolean disableCompany = member.toggleDisableCompany();
 
         return DisableCompanyResponse.create(disableCompany);
+    }
+
+    /**
+     * 매일 오후 3시에 drawCount = 0으로 초기화
+     *
+     */
+    @Scheduled(cron = "0 0 15 * * *") // 매일 오후 3시에 실행
+    @Transactional
+    public void initMemberDrawCount() {
+        memberRepository.initDrawCount();
     }
 
     /**
