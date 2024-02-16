@@ -3,8 +3,7 @@ package com.iglooclub.nungil.domain;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
-import com.iglooclub.nungil.util.StringListConverter;
-import com.iglooclub.nungil.util.YoilListConverter;
+import com.iglooclub.nungil.util.converter.YoilListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -77,7 +76,7 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
-    @Column(length = 400)
+    @Column(length = 1000)
     private String description;
 
     @Builder.Default
@@ -96,6 +95,10 @@ public class Member {
     private Integer preferredAgeStart;
 
     private Integer preferredAgeEnd;
+
+    // 인연 프로필 뽑기 횟수
+    @Builder.Default
+    private Long drawCount = 0L;
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
@@ -117,7 +120,7 @@ public class Member {
     @Builder.Default
     private List<Yoil> yoilList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<MarkerAllocation> markerAllocationList = new ArrayList<>();
 
@@ -138,6 +141,7 @@ public class Member {
         this.personalityDepictionAllocationList = new ArrayList<>();
         this.markerAllocationList = new ArrayList<>();
         this.yoilList = new ArrayList<>();
+        this.drawCount = 0L;
     }
 
     // == 비즈니스 로직 == //
@@ -173,13 +177,11 @@ public class Member {
      * @param request 프로필 수정 요청 DTO
      * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingMarkers marker_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      */
     public void updateProfile(ProfileUpdateRequest request,
                               List<FaceDepictionAllocation> nonExistingFaceDepictions,
                               List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
-                              List<MarkerAllocation> nonExistingMarkers,
                               List<HobbyAllocation> nonExistingHobbies) {
 
         this.nickname = request.getNickname();
@@ -199,8 +201,6 @@ public class Member {
         this.faceDepictionAllocationList = nonExistingFaceDepictions;
 
         this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
-
-        this.markerAllocationList = nonExistingMarkers;
 
         this.hobbyAllocationList = nonExistingHobbies;
     }
@@ -263,13 +263,6 @@ public class Member {
         this.markerAllocationList.add(markerAllocation);
     }
 
-    public void addAvailableTime(AvailableTime availableTime) {
-        AvailableTimeAllocation availableTimeAllocation = AvailableTimeAllocation.builder()
-                .availableTime(availableTime)
-                .member(this)
-                .build();
-        this.availableTimeAllocationList.add(availableTimeAllocation);
-    }
 
     public void addHobby(Hobby hobby) {
         HobbyAllocation hobbyAllocation = HobbyAllocation.builder()
@@ -284,7 +277,7 @@ public class Member {
         this.company = company;
     }
 
-    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList) {
+    public void updateSchedule(Location location, List<Yoil> yoilList, List<AvailableTime> availableTimeList, List<Marker> markerList) {
         List<AvailableTimeAllocation> newAvailableTimeAllocationList = availableTimeList.stream()
                 .map(v -> AvailableTimeAllocation.builder().availableTime(v).member(this).build())
                 .collect(Collectors.toList());
@@ -294,12 +287,24 @@ public class Member {
 
         this.availableTimeAllocationList.clear();
         this.availableTimeAllocationList.addAll(newAvailableTimeAllocationList);
+
+
+        List<MarkerAllocation> newMarkerAllocationList = markerList.stream()
+                .map(v -> MarkerAllocation.builder().marker(v).member(this).build())
+                .collect(Collectors.toList());
+
+        this.markerAllocationList.clear();
+        this.markerAllocationList.addAll(newMarkerAllocationList);
     }
 
 
     public void updatePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public void updateLocation(Location location) {this.location = location;}
+
+    public void plusDrawCount() {this.drawCount += 1L;}
 
 
     // List를 String으로 변환하는 메서드

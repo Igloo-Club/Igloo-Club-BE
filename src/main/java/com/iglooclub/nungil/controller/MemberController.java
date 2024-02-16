@@ -1,6 +1,7 @@
 package com.iglooclub.nungil.controller;
 
 import com.iglooclub.nungil.domain.Member;
+import com.iglooclub.nungil.domain.enums.Location;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,8 +54,9 @@ public class MemberController {
     }
 
     @PostMapping("/api/member/phone/authentication")
-    public ResponseEntity<?> sendAuthMessage(@RequestBody MessageAuthenticationRequest request) {
-        memberService.sendAuthMessage(request);
+    public ResponseEntity<?> sendAuthMessage(@RequestBody MessageAuthenticationRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.sendAuthMessage(request, member);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -62,6 +65,18 @@ public class MemberController {
         Member member = getMember(principal);
         memberService.verifyAuthMessage(request, member);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/api/member/location")
+    public ResponseEntity<?> updateLocation(@RequestBody LocationRequest request, Principal principal){
+        Member member = getMember(principal);
+        memberService.updateLocation(request,member);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/api/markers")
+    public List<AvailableMarker> getAllMarkers(@RequestParam Location location){
+        return memberService.getAllMarkers(location);
     }
 
     private Member getMember(Principal principal) {

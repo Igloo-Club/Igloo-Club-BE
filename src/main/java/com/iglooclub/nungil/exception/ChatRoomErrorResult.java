@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ChatRoomErrorResult implements ErrorResult {
-
+    CHAT_ROOM_MORE_THAN_ONE(HttpStatus.CONFLICT, "More than one chat room"),
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Failed to find the chat room"),
     NOT_MEMBER(HttpStatus.FORBIDDEN, "Only available for the member of the chat room"),
     ;

@@ -8,6 +8,7 @@ import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.OauthInfo;
 import com.iglooclub.nungil.domain.RefreshToken;
 import com.iglooclub.nungil.domain.enums.OauthProvider;
+import com.iglooclub.nungil.domain.enums.RegisterProgress;
 import com.iglooclub.nungil.dto.LoginResponse;
 import com.iglooclub.nungil.exception.GeneralException;
 import com.iglooclub.nungil.exception.GlobalErrorResult;
@@ -75,7 +76,7 @@ public class OauthService {
         // 3. 회원 정보 저장
         Member member = registerKakaoUser(responseJson, oauthAccessToken);
         // 3-1. 회원 프로필 등록 여부 판별
-        Boolean isProfileRegistered = member.getNickname() != null;
+        RegisterProgress nextProgress = getNextProgress(member);
 
         // 4. JWT 리프레시 토큰 발급
         String refreshToken = tokenProvider.generateToken(member, REFRESH_TOKEN_DURATION);
@@ -85,7 +86,55 @@ public class OauthService {
         // 5. JWT 액세스 토큰 발급
         String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
 
-        return new LoginResponse(accessToken, isProfileRegistered);
+        return new LoginResponse(accessToken, nextProgress.getTitle(), RegisterProgress.REGISTERED.equals(nextProgress));
+    }
+
+    /**
+     * 주어진 회원이 수행해야 하는 다음 가입 절차를 반환한다.
+     * @param member 회원 엔티티
+     * @return 다음에 수행할 가입 절차
+     */
+    public RegisterProgress getNextProgress(Member member) {
+
+        // 장소가 존재하면, 가입 완료
+        if (member.getLocation() != null) {
+            return RegisterProgress.REGISTERED;
+        }
+
+        // 닉네임이 존재하면, 장소 선택부터
+        if (member.getNickname() != null) {
+            return RegisterProgress.PLACE_INPUT;
+        }
+
+        // 회사 이메일 인증 후이면, 닉네임 입력부터
+        if (member.getCompany() != null) {
+            return RegisterProgress.NICKNAME_INPUT;
+        }
+
+        // 전화번호 인증 후이면, 회사 이메일 입력부터
+        if (member.getPhoneNumber() != null) {
+            return RegisterProgress.COMPANY_EMAIL_INPUT;
+        }
+
+        // 전화번호 인증 전이면, 맨 처음(약관동의)부터
+        return RegisterProgress.AGREEMENT;
+    }
+
+    /**
+     * 사용자를 로그아웃 처리하는 메서드이다.
+     * @param member 로그아웃할 사용자
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     */
+    public void kakaoLogout(Member member, HttpServletRequest request, HttpServletResponse response) {
+        // 1. 리프레시 토큰 만료
+        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+
+        // 2. 사용자의 카카오 액세스 토큰 조회
+        String oauthAccess = member.getOauthAccess();
+
+        // 3. 카카오로 로그아웃 요청 보내기
+        logoutKakao(oauthAccess);
     }
 
     private void addRefreshTokenToCookie(HttpServletRequest request, HttpServletResponse response, String refreshToken) {
@@ -122,7 +171,7 @@ public class OauthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", CLIENT_ID);
-        body.add("redirect_uri", REDIRECT_URI);
+//        body.add("redirect_uri", REDIRECT_URI);
         body.add("code", code);
 
         // HTTP 요청 보내기
@@ -195,5 +244,25 @@ public class OauthService {
                         .oauthInfo(oauthInfo)
                         .build());
         return memberRepository.save(member);
+    }
+
+    /**
+     * 카카오 액세스 토큰을 사용하여, 카카오 서버에 로그아웃 요청을 보내는 메서드이다.
+     * @param accessToken 카카오 액세스 토큰
+     */
+    private void logoutKakao(String accessToken) {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> logoutRequest = new HttpEntity<>(headers);
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/logout",
+                HttpMethod.POST,
+                logoutRequest,
+                String.class
+        );
     }
 }

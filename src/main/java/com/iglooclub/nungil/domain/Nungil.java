@@ -3,11 +3,14 @@ package com.iglooclub.nungil.domain;
 import com.iglooclub.nungil.domain.enums.AvailableTime;
 import com.iglooclub.nungil.domain.enums.Marker;
 import com.iglooclub.nungil.domain.enums.NungilStatus;
+import com.iglooclub.nungil.domain.enums.Yoil;
+import com.iglooclub.nungil.util.converter.MarkerListConverter;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,15 +39,17 @@ public class Nungil {
     private Member receiver;
 
     @Nullable
-    private String matchedYoil;
+    @Enumerated(EnumType.STRING)
+    private Yoil matchedYoil;
 
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
-    @Nullable
-    private String matchedMarkers;
+    @Convert(converter = MarkerListConverter.class)
+    @Builder.Default
+    private List<Marker> matchedMarkers = new ArrayList<>();
 
-    // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Nullable
-    private String matchedAvailableTime;
+    @Enumerated(EnumType.STRING)
+    private AvailableTime matchedAvailableTime;
 
     // == 정적 생성 메서드 == //
     public static Nungil create(Member member, Member receiver, NungilStatus status) {
@@ -68,8 +73,9 @@ public class Nungil {
         this.expiredAt = null;
     }
 
-    public void update(String matchedMarkers, String matchedAvailableTime, String matchedYoil) {
-        this.matchedMarkers = matchedMarkers;
+    public void update(List<Marker> matchedMarkers, AvailableTime matchedAvailableTime, Yoil matchedYoil) {
+        this.matchedMarkers.clear();
+        this.matchedMarkers.addAll(matchedMarkers);
         this.matchedAvailableTime = matchedAvailableTime;
         this.matchedYoil = matchedYoil;
     }

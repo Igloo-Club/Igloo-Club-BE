@@ -1,4 +1,4 @@
-package com.iglooclub.nungil.util;
+package com.iglooclub.nungil.util.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

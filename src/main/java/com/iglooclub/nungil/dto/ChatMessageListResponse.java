@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ChatMessageListResponse {
 
-    private AnimalFace animalFace;
+    private String animalFace;
 
     private String sender;
 
@@ -25,7 +25,7 @@ public class ChatMessageListResponse {
     private Boolean isSender;
 
     public static ChatMessageListResponse create(Member member, ChatMessage chatMessage, Boolean isSender) {
-        return new ChatMessageListResponse(member.getAnimalFace(), member.getNickname(), chatMessage.getContent(),
+        return new ChatMessageListResponse(member.getAnimalFace().getTitle(), member.getNickname(), chatMessage.getContent(),
                 chatMessage.getCreatedAt(), isSender);
     }
 }

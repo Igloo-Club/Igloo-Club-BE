@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatRoomListResponse {
-    private AnimalFace animalFace;
+    private String animalFace;
 
     private String senderNickName;
 

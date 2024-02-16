@@ -34,6 +34,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
         //공통 where : 성별이 다른 member
         builder.and(qMember.sex.ne(member.getSex()));
 
+        //공통 where : 지역이 같은 member
+        builder.and(qMember.location.eq(member.getLocation()));
+
         //유료 여부 분기, 유료일 시 지인 추천 받지 않음
         if(isPayed){
             builder.and(qMember.id.notIn(acquaintanceMemberIds));

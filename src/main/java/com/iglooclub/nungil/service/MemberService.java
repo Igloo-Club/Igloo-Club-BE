@@ -10,14 +10,13 @@ import com.iglooclub.nungil.exception.MemberErrorResult;
 import com.iglooclub.nungil.repository.*;
 import com.iglooclub.nungil.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -79,7 +78,6 @@ public class MemberService {
         // == 데이터베이스의 데이터들 중, 요청된 수정값이 아닌 값들을 모두 삭제한다. == //
         faceDepictionAllocationRepository.deleteAllByFaceDepictionNotIn(request.getFaceDepictionList());
         personalityDepictionAllocationRepository.deleteAllByPersonalityDepictionNotIn(request.getPersonalityDepictionList());
-        markerAllocationRepository.deleteAllByMarkerNotIn(request.getMarkerList());
         hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
 
         // == 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. == //
@@ -99,14 +97,6 @@ public class MemberService {
             }
         }
 
-        List<MarkerAllocation> nonExistingMarkers = new ArrayList<>();
-        for (Marker marker : request.getMarkerList()) {
-            if (!member.getMarkerList().contains(marker)) {
-                nonExistingMarkers.add(MarkerAllocation.builder()
-                        .marker(marker).member(member).build());
-            }
-        }
-
         List<HobbyAllocation> nonExistingHobbies = new ArrayList<>();
         for (Hobby hobby : request.getHobbyList()) {
             if (!member.getHobbyList().contains(hobby)) {
@@ -115,7 +105,7 @@ public class MemberService {
             }
         }
 
-        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingMarkers, nonExistingHobbies);
+        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingHobbies);
     }
 
     @Transactional
@@ -124,32 +114,32 @@ public class MemberService {
         List<Yoil> sortedYoilList = request.getYoilList();
         Collections.sort(sortedYoilList);
 
-        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList());
+        member.updateSchedule(request.getLocation(), sortedYoilList, request.getAvailableTimeList(), request.getMarkerList());
     }
 
     /**
      * 인증번호를 생성하고, 주어진 전화번호로 인증문자를 전송하는 메서드이다.
      * @param request 인증 요청 DTO
      */
-    public void sendAuthMessage(MessageAuthenticationRequest request) {
+    public void sendAuthMessage(MessageAuthenticationRequest request, Member member) {
 
         String phoneNumber = request.getPhoneNumber();
 
-        // 이미 가입된 이메일인지 확인한다.
-        checkDuplicatedPhoneNumber(phoneNumber);
+        // 이미 가입된 전화번호인지 확인한다.
+        checkDuplicatedPhoneNumber(phoneNumber, member);
 
         // code: 알파벳 대문자와 숫자로 구성된 랜덤 문자열의 인증번호
         String code = RandomStringUtil.numeric(6);
         String text = "[눈길] 인증번호 [" + code + "]를 입력해주세요";
 
-        // 이메일을 발송한다.
-        coolSMS.send(phoneNumber, text);
-
-        // redis에 이메일을 키로 하여 인증번호를 저장한다.
+        // redis에 전화번호를 키로 하여 인증번호를 저장한다.
         if (redisUtil.exists(phoneNumber)) {
             redisUtil.delete(phoneNumber);
         }
         redisUtil.set(phoneNumber, code, Duration.ofMinutes(5));
+
+        // 인증문자를 발송한다.
+        coolSMS.send(phoneNumber, text);
     }
 
     /**
@@ -162,7 +152,7 @@ public class MemberService {
         String phoneNumber = request.getPhoneNumber();
 
         // 이미 가입된 이메일인지 확인한다.
-        checkDuplicatedPhoneNumber(phoneNumber);
+        checkDuplicatedPhoneNumber(phoneNumber, member);
 
         // 요청된 전화번호를 키로 갖는 인증번호가 없거나 만료된 경우
         String foundCode = redisUtil.get(phoneNumber);
@@ -180,14 +170,24 @@ public class MemberService {
     }
 
     /**
-     * 주어진 전화번호를 사용하는 회원이 존재하는지 확인하고, 이미 존재한다면 예외를 발생시키는 메서드이다.
+     * 주어진 전화번호를 사용하는 회원이 존재하는지 확인하고, 다른 사람이 이미 사용한다면 예외를 발생시키는 메서드이다.
      * @param phoneNumber 회원 전화번호
+     * @param requester 요청한 회원 엔티티
      */
-    private void checkDuplicatedPhoneNumber(String phoneNumber) {
-        Optional<Member> member = memberRepository.findByPhoneNumber(phoneNumber);
-        if (member.isPresent()) {
-            throw new GeneralException(MemberErrorResult.DUPLICATED_PHONENUMBER);
+    private void checkDuplicatedPhoneNumber(String phoneNumber, Member requester) {
+        Optional<Member> optional = memberRepository.findByPhoneNumber(phoneNumber);
+        // 주어진 전화번호를 사용하는 회원이 존재하지 않으면 종료
+        if (optional.isEmpty()) {
+            return;
         }
+
+        // 주어진 전화번호를 사용하는 회원이 자기자신이면 종료
+        Member member = optional.get();
+        if (member.getId().equals(requester.getId())) {
+            return;
+        }
+
+        throw new GeneralException(MemberErrorResult.DUPLICATED_PHONENUMBER);
     }
 
     /**
@@ -201,4 +201,36 @@ public class MemberService {
 
         return DisableCompanyResponse.create(disableCompany);
     }
+
+    /**
+     * 매일 오후 3시에 drawCount = 0으로 초기화
+     *
+     */
+    @Scheduled(cron = "0 0 15 * * *") // 매일 오후 3시에 실행
+    @Transactional
+    public void initMemberDrawCount() {
+        memberRepository.initDrawCount();
+    }
+
+    /**
+     * 주어진 회원의 location 필드를 수정하는 메서드이다.
+     * @request locationRequest location 정보
+     */
+    @Transactional
+    public void updateLocation(LocationRequest locationRequest, Member member){
+        member.updateLocation(locationRequest.getLocation());
+    }
+
+    /**
+     * 모든 마커 정보를 조회하는 메서드이다.
+     * @param location 반환 마커 소재지
+     */
+    public List<AvailableMarker> getAllMarkers(Location location) {
+        List<AvailableMarker> markerList = Arrays.asList(Marker.values()).stream()
+                .filter(marker -> marker.getLocation() == location)
+                .map(marker -> AvailableMarker.create(marker))
+                .collect(Collectors.toList());
+        return markerList;
+    }
+
 }

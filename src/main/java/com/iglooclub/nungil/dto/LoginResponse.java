@@ -8,6 +8,8 @@ import lombok.Getter;
 public class LoginResponse {
     private String accessToken;
 
-    //프로필 등록 여부 판별
+    // 다음 수행할 가입 절차
+    private String nextProgress;
+
     private Boolean isProfileRegistered;
 }
