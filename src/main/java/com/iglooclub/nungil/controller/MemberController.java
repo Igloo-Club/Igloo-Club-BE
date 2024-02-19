@@ -19,9 +19,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/api/member")
-    public ResponseEntity<?> createProfile(@RequestBody ProfileCreateRequest request, Principal principal) {
+    public ResponseEntity<?> createProfile(@RequestBody ProfileUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
-        memberService.createProfile(member, request);
+        memberService.updateProfile(member, request);
         return ResponseEntity.ok(null);
     }
 
