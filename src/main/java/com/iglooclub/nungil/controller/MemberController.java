@@ -41,9 +41,9 @@ public class MemberController {
     }
 
     @PatchMapping("/api/member/company/toggle")
-    public ResponseEntity<?> toggleDisableCompany(Principal principal) {
+    public ResponseEntity<?> updateDisableCompany(DisableCompanyRequest request, Principal principal) {
         Member member = getMember(principal);
-        DisableCompanyResponse response = memberService.toggleDisableCompany(member);
+        DisableCompanyResponse response = memberService.updateDisableCompany(member, request.getDisableCompany());
         return ResponseEntity.ok(response);
     }
 

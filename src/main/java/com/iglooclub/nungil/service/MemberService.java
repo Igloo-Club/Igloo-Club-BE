@@ -145,15 +145,16 @@ public class MemberService {
     }
 
     /**
-     * 주어진 회원의 '회사 사람 만나지 않기' 값을 토글하는 메서드이다.
-     * @param member 값을 토글할 회원 엔티티
+     * 주어진 회원의 '회사 사람 만나지 않기' 값을 변경하는 메서드이다.
+     * @param member 값을 바꿀 Member 엔티티
+     * @param disableCompany 바꿀 '회사 사람 만나지 않기' 값
      * @return 변경된 '회사 사람 만나지 않기' 값
      */
     @Transactional
-    public DisableCompanyResponse toggleDisableCompany(Member member) {
-        Boolean disableCompany = member.toggleDisableCompany();
+    public DisableCompanyResponse updateDisableCompany(Member member, Boolean disableCompany) {
+        Boolean newDisableCompany = member.updateDisableCompany(disableCompany);
 
-        return DisableCompanyResponse.create(disableCompany);
+        return DisableCompanyResponse.create(newDisableCompany);
     }
 
     /**

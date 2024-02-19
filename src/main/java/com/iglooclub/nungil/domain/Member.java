@@ -294,8 +294,8 @@ public class Member {
     }
 
 
-    public Boolean toggleDisableCompany() {
-        this.disableCompany = !this.disableCompany;
+    public Boolean updateDisableCompany(Boolean disableCompany) {
+        this.disableCompany = disableCompany;
         return this.disableCompany;
     }
 }
