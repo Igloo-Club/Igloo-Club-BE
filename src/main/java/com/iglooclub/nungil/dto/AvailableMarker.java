@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AvailableMarker {
 
+    private String value;
+
     private String title;
 
     private String address;
@@ -22,6 +24,7 @@ public class AvailableMarker {
 
     public static AvailableMarker create(Marker marker) {
         AvailableMarker availableMarker = new AvailableMarker();
+        availableMarker.value = marker.getValue();
         availableMarker.title = marker.getTitle();
         availableMarker.address = marker.getAddress();
         availableMarker.latitude = marker.getLatitude();
