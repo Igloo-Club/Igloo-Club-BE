@@ -61,8 +61,10 @@ public class NungilService {
         if (recommendedMember == null) return null;
 
         // 3. 추천 받은 회원에 대한 지인 관계를 생성하고 저장한다.
-        Acquaintance newAcquaintance = getAcquaintance(member, recommendedMember);
-        acquaintanceRepository.save(newAcquaintance);
+        Acquaintance newAcquaintance1 = getAcquaintance(member, recommendedMember);
+        Acquaintance newAcquaintance2 = getAcquaintance(recommendedMember, member);
+        acquaintanceRepository.save(newAcquaintance1);
+        acquaintanceRepository.save(newAcquaintance2);
 
         // 4. 추천 받은 회원에 대한 눈길을 생성하고 저장한다.
         Nungil newNungil = Nungil.create(member, recommendedMember, NungilStatus.RECOMMENDED);
