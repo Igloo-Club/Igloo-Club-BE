@@ -1,7 +1,6 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
-import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import com.iglooclub.nungil.util.converter.YoilListConverter;
 import lombok.AllArgsConstructor;
@@ -69,11 +68,11 @@ public class Member {
     private MarriageState marriageState;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FaceDepictionAllocation> faceDepictionAllocationList = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PersonalityDepictionAllocation> personalityDepictionAllocationList = new ArrayList<>();
 
     @Column(length = 1000)
@@ -101,7 +100,7 @@ public class Member {
     private Long drawCount = 0L;
 
     @Builder.Default
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HobbyAllocation> hobbyAllocationList = new ArrayList<>();
 
     @Builder.Default
@@ -145,44 +144,11 @@ public class Member {
     }
 
     // == 비즈니스 로직 == //
-
-    /**
-     * 회원의 프로필 정보를 등록하는 메서드이다.
-     * @param request 프로필 등록 요청 DTO
-     */
-    public void createProfile(ProfileCreateRequest request) {
-
-        this.nickname = request.getNickname();
-        this.sex = request.getSex();
-        this.birthdate = request.getBirthdate();
-        this.contact.update(request.getContactKakao(), request.getContactInstagram());
-        this.animalFace = request.getAnimalFace();
-        this.job = request.getJob();
-        this.height = request.getHeight();
-        this.mbti = request.getMbti();
-        this.marriageState = request.getMarriageState();
-        this.religion = request.getReligion();
-        this.alcohol = request.getAlcohol();
-        this.smoke = request.getSmoke();
-        request.getFaceDepictionList().forEach(this::addFaceDepiction);
-        request.getPersonalityDepictionList().forEach(this::addPersonalityDepiction);
-        this.description = request.getDescription();
-        request.getMarkerList().forEach(this::addMarker);
-        request.getHobbyList().forEach(this::addHobby);
-
-    }
-
     /**
      * 회원의 프로필 정보를 수정하는 메서드이다.
      * @param request 프로필 수정 요청 DTO
-     * @param nonExistingFaceDepictions face_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingPersonalityDepictions personality_depiction_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
-     * @param nonExistingHobbies hobby_allocation 테이블의 행과 데이터가 겹치지 않는 추가적인 삽입 데이터 목록
      */
-    public void updateProfile(ProfileUpdateRequest request,
-                              List<FaceDepictionAllocation> nonExistingFaceDepictions,
-                              List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions,
-                              List<HobbyAllocation> nonExistingHobbies) {
+    public void updateProfile(ProfileUpdateRequest request) {
 
         this.nickname = request.getNickname();
         this.sex = request.getSex();
@@ -198,11 +164,14 @@ public class Member {
         this.smoke = request.getSmoke();
         this.description = request.getDescription();
 
-        this.faceDepictionAllocationList = nonExistingFaceDepictions;
+        this.faceDepictionAllocationList.clear();
+        addAllFaceDepiction(request.getFaceDepictionList());
 
-        this.personalityDepictionAllocationList = nonExistingPersonalityDepictions;
+        this.personalityDepictionAllocationList.clear();
+        addAllPersonalityDepiction(request.getPersonalityDepictionList());
 
-        this.hobbyAllocationList = nonExistingHobbies;
+        this.hobbyAllocationList.clear();
+        addAllHobby(request.getHobbyList());
     }
 
     // == 조회 로직 == //
@@ -239,37 +208,34 @@ public class Member {
 
     // == 연관관계 메서드 == //
 
-    public void addFaceDepiction(FaceDepiction faceDepiction) {
-        FaceDepictionAllocation faceDepictionAllocation = FaceDepictionAllocation.builder()
-                .faceDepiction(faceDepiction)
-                .member(this)
-                .build();
-        this.faceDepictionAllocationList.add(faceDepictionAllocation);
+    public void addAllFaceDepiction(List<FaceDepiction> faceDepictionList) {
+        List<FaceDepictionAllocation> faceDepictionAllocationList = faceDepictionList.stream()
+                .map(v -> FaceDepictionAllocation.builder()
+                        .faceDepiction(v)
+                        .member(this)
+                        .build())
+                .collect(Collectors.toList());
+        this.faceDepictionAllocationList.addAll(faceDepictionAllocationList);
     }
 
-    public void addPersonalityDepiction(PersonalityDepiction personalityDepiction) {
-        PersonalityDepictionAllocation personalityDepictionAllocation = PersonalityDepictionAllocation.builder()
-                .personalityDepiction(personalityDepiction)
-                .member(this)
-                .build();
-        this.personalityDepictionAllocationList.add(personalityDepictionAllocation);
+    public void addAllPersonalityDepiction(List<PersonalityDepiction> personalityDepictionList) {
+        List<PersonalityDepictionAllocation> personalityDepictionAllocationList = personalityDepictionList.stream()
+                .map(v -> PersonalityDepictionAllocation.builder()
+                        .personalityDepiction(v)
+                        .member(this)
+                        .build())
+                .collect(Collectors.toList());
+        this.personalityDepictionAllocationList.addAll(personalityDepictionAllocationList);
     }
 
-    public void addMarker(Marker marker) {
-        MarkerAllocation markerAllocation = MarkerAllocation.builder()
-                .marker(marker)
-                .member(this)
-                .build();
-        this.markerAllocationList.add(markerAllocation);
-    }
-
-
-    public void addHobby(Hobby hobby) {
-        HobbyAllocation hobbyAllocation = HobbyAllocation.builder()
-                .hobby(hobby)
-                .member(this)
-                .build();
-        this.hobbyAllocationList.add(hobbyAllocation);
+    public void addAllHobby(List<Hobby> hobbyList) {
+        List<HobbyAllocation> hobbyAllocationList = hobbyList.stream()
+                .map(v -> HobbyAllocation.builder()
+                        .hobby(v)
+                        .member(this)
+                        .build())
+                .collect(Collectors.toList());
+        this.hobbyAllocationList.addAll(hobbyAllocationList);
     }
 
     public void setCompany(String email, Company company) {
@@ -328,8 +294,8 @@ public class Member {
     }
 
 
-    public Boolean toggleDisableCompany() {
-        this.disableCompany = !this.disableCompany;
+    public Boolean updateDisableCompany(Boolean disableCompany) {
+        this.disableCompany = disableCompany;
         return this.disableCompany;
     }
 }

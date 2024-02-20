@@ -20,9 +20,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/api/member")
-    public ResponseEntity<?> createProfile(@RequestBody @Valid ProfileCreateRequest request, Principal principal) {
+    public ResponseEntity<?> createProfile(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
-        memberService.createProfile(member, request);
+        memberService.updateProfile(member, request);
         return ResponseEntity.ok(null);
     }
 
@@ -41,9 +41,9 @@ public class MemberController {
     }
 
     @PatchMapping("/api/member/company/toggle")
-    public ResponseEntity<?> toggleDisableCompany(Principal principal) {
+    public ResponseEntity<?> updateDisableCompany(@RequestBody DisableCompanyRequest request, Principal principal) {
         Member member = getMember(principal);
-        DisableCompanyResponse response = memberService.toggleDisableCompany(member);
+        DisableCompanyResponse response = memberService.updateDisableCompany(member, request.getDisableCompany());
         return ResponseEntity.ok(response);
     }
 
