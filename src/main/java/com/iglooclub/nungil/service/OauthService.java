@@ -45,7 +45,7 @@ public class OauthService {
 
     private final String REDIRECT_URI;
 
-    private static final Duration ACCESS_TOKEN_DURATION = Duration.ofDays(1);
+    private static final Duration ACCESS_TOKEN_DURATION = Duration.ofMinutes(30L);
 
     private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
 
