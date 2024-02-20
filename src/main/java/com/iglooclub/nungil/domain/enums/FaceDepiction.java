@@ -16,19 +16,20 @@ public enum FaceDepiction {
     SLIGHTLY_PLUMP("약간 통통해요"),
     BROAD_SHOULDERS("어깨가 넓어요"),
     STRONG_LOWER_BODY("하체가 튼튼해요"),
-    LONG_ARMS("팔길이가 길어요"),
+    BABY_FACE("동안이에요"),
     LONG_LEGS("다리가 길어요"),
-    SOFT_FIGURE("체형이 부드럽게 보어요"),
-    BRIGHT_EYES("눈이 크고 맑아요"),
-    EYE_SMILE("눈웃음이 이뻐요"),
+    THICK_HAIR("머리숱이 많아요"),
+    BIG_EYES("눈이 커요"),
+    EYE_SMILE("눈웃음이 예뻐요"),
     SHARP_NOSE("코가 오똑해요"),
     CLEAN_JAWLINE("턱선이 깔끔해요"),
     CUTE_CHEEKS("볼살이 귀여워요"),
     ANGULAR_FACE("얼굴형이 각진 편이에요"),
     ROUND_FACE("얼굴형이 둥근 편이에요"),
-    BRIGHT_SKIN("피부가 밝아요"),
-    CLEAN_TEETH("이가 깔끔해요"),
-    EXOTIC_LOOKS("외모가 이국적이에요");
+    BRIGHT_SKIN("피부톤이 밝아요"),
+    EXOTIC_LOOKS("외모가 이국적이에요"),
+    FASHION_SENSE("패션감각이 좋아요"),
+    ;
 
     private final String title;
 }
