@@ -1,5 +1,6 @@
 package com.iglooclub.nungil.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iglooclub.nungil.domain.enums.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class ProfileUpdateRequest {
 
     @NotNull
     @Past
+    @JsonFormat(pattern = "yyyyMMdd")
     private LocalDate birthdate;
 
     @Size(max = 255)
