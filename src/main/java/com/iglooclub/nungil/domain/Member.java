@@ -44,7 +44,7 @@ public class Member {
     private String email;
 
     @Builder.Default
-    private Boolean disableCompany = true;
+    private Boolean disableCompany = false;
 
     @Enumerated(value = EnumType.STRING)
     private AnimalFace animalFace;
@@ -131,7 +131,7 @@ public class Member {
 
     public Member(){
         this.point = 0;
-        this.disableCompany = true;
+        this.disableCompany = false;
         this.availableTimeAllocationList = new ArrayList<>();
         this.noshowCount = 0;
         this.hobbyAllocationList = new ArrayList<>();
