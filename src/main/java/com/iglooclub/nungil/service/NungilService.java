@@ -66,8 +66,10 @@ public class NungilService {
         if (recommendedMember == null) return null;
 
         // 3. 추천 받은 회원에 대한 지인 관계를 생성하고 저장한다.
-        Acquaintance newAcquaintance = getAcquaintance(member, recommendedMember);
-        acquaintanceRepository.save(newAcquaintance);
+        Acquaintance newAcquaintance1 = getAcquaintance(member, recommendedMember);
+        Acquaintance newAcquaintance2 = getAcquaintance(recommendedMember, member);
+        acquaintanceRepository.save(newAcquaintance1);
+        acquaintanceRepository.save(newAcquaintance2);
 
         // 4. 추천 받은 회원에 대한 눈길을 생성하고 저장한다.
         Nungil newNungil = Nungil.create(member, recommendedMember, NungilStatus.RECOMMENDED);
@@ -122,6 +124,37 @@ public class NungilService {
         // Nungil 엔티티를 데이터베이스에서 조회
         Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, status);
 
+        // Nungil 엔티티를 NungilPageResponse DTO로 변환
+        List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
+                .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
+                .collect(Collectors.toList());
+
+
+
+        // 변환된 DTO 리스트와 함께 새로운 Slice 객체를 생성하여 반환
+        return new SliceImpl<>(nungilResponses, pageRequest, nungilSlice.hasNext());
+    }
+
+    /**
+     * 추천 눈길상태의 프로필을 전체 조회하는 api입니다. 오늘 프로필을 추천받지 않았다면, 하나 뽑습니다.
+     *
+     * @param  page 페이지 정보
+     * @param size 페이지 정보
+     *
+     * @return NungilPageResponse 슬라이스 정보 반환
+     */
+    @Transactional
+    public Slice<NungilSliceResponse> getRecommendedNungilSlice(Member member, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size,Sort.by("createdAt").descending());
+
+        // 사용자가 아직까지 프로필을 뽑지 않았다면, 자동으로 하나 뽑는다.
+        if (member.getDrawCount() == 0) {
+            this.recommendMember(member, new ProfileRecommendRequest(true));
+        }
+
+        // Nungil 엔티티를 데이터베이스에서 조회
+        Slice<Nungil> nungilSlice = nungilRepository.findAllByMemberAndStatus(pageRequest, member, NungilStatus.RECOMMENDED);
+
         if (member.getLocation() == null || nungilSlice.getContent().stream()
                 .anyMatch(nungil -> nungil.getReceiver().getLocation() == null)) {
             throw new GeneralException(MemberErrorResult.LOCATION_NOT_FOUND);
@@ -129,7 +162,7 @@ public class NungilService {
 
         // Nungil 엔티티를 NungilPageResponse DTO로 변환
         List<NungilSliceResponse> nungilResponses = nungilSlice.getContent().stream()
-                .filter(nungil -> nungil.getStatus() != NungilStatus.RECOMMENDED || member.getLocation().equals(nungil.getReceiver().getLocation()))
+                .filter(nungil -> member.getLocation().equals(nungil.getReceiver().getLocation()))
                 .map(nungil -> NungilSliceResponse.create(nungil, nungil.getReceiver()))
                 .collect(Collectors.toList());
 
@@ -187,6 +220,7 @@ public class NungilService {
         Nungil newNungil = Nungil.create(receiver, member, NungilStatus.RECEIVED);
         newNungil.setExpiredAt7DaysAfter();
         receiverAcquaintance.update(NungilStatus.RECEIVED);
+        acquaintanceRepository.save(receiverAcquaintance);
         nungilRepository.save(newNungil);
 
         // 눈길 받은 사용자에게 알림 전송

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 
@@ -26,9 +27,9 @@ public class MemberController {
     }
 
     @PostMapping("/api/member")
-    public ResponseEntity<?> createProfile(@RequestBody ProfileCreateRequest request, Principal principal) {
+    public ResponseEntity<?> createProfile(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
-        memberService.createProfile(member, request);
+        memberService.updateProfile(member, request);
         return ResponseEntity.ok(null);
     }
 
@@ -40,16 +41,16 @@ public class MemberController {
     }
 
     @PatchMapping("/api/member")
-    public ResponseEntity<?> updateProfile(@RequestBody ProfileUpdateRequest request, Principal principal) {
+    public ResponseEntity<?> updateProfile(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
         Member member = getMember(principal);
         memberService.updateProfile(member, request);
         return ResponseEntity.ok(null);
     }
 
     @PatchMapping("/api/member/company/toggle")
-    public ResponseEntity<?> toggleDisableCompany(Principal principal) {
+    public ResponseEntity<?> updateDisableCompany(@RequestBody DisableCompanyRequest request, Principal principal) {
         Member member = getMember(principal);
-        DisableCompanyResponse response = memberService.toggleDisableCompany(member);
+        DisableCompanyResponse response = memberService.updateDisableCompany(member, request.getDisableCompany());
         return ResponseEntity.ok(response);
     }
 

@@ -43,22 +43,6 @@ public class MemberService {
     }
 
     /**
-     * 주어진 회원의 프로필 정보를 등록하는 메서드이다.
-     * @param member 프로필 정보가 등록되지 않은 회원
-     * @param request 프로필 등록 요청 DTO
-     */
-    @Transactional
-    public void createProfile(Member member, ProfileCreateRequest request) {
-        // == 데이터베이스 테이블에 프로필 데이터가 있다면 전부 삭제한다. == //
-        faceDepictionAllocationRepository.deleteAllByMember(member);
-        personalityDepictionAllocationRepository.deleteAllByMember(member);
-        markerAllocationRepository.deleteAllByMember(member);
-        hobbyAllocationRepository.deleteAllByMember(member);
-
-        member.createProfile(request);
-    }
-
-    /**
      * 회원 정보를 조회하는 메서드이다.
      * @param member 정보를 조회할 회원의 Member 클래스
      * @return 회원 정보 응답 DTO
@@ -75,37 +59,7 @@ public class MemberService {
     @Transactional
     public void updateProfile(Member member, ProfileUpdateRequest request) {
 
-        // == 데이터베이스의 데이터들 중, 요청된 수정값이 아닌 값들을 모두 삭제한다. == //
-        faceDepictionAllocationRepository.deleteAllByFaceDepictionNotIn(request.getFaceDepictionList());
-        personalityDepictionAllocationRepository.deleteAllByPersonalityDepictionNotIn(request.getPersonalityDepictionList());
-        hobbyAllocationRepository.deleteAllByHobbyNotIn(request.getHobbyList());
-
-        // == 요청된 수정값들 중, 데이터베이스에 존재하지 않는 데이터들만을 삽입한다. == //
-        List<FaceDepictionAllocation> nonExistingFaceDepictions = new ArrayList<>();
-        for (FaceDepiction faceDepiction : request.getFaceDepictionList()) {
-            if (!member.getFaceDepictionList().contains(faceDepiction)) {
-                nonExistingFaceDepictions.add(FaceDepictionAllocation.builder()
-                        .faceDepiction(faceDepiction).member(member).build());
-            }
-        }
-
-        List<PersonalityDepictionAllocation> nonExistingPersonalityDepictions = new ArrayList<>();
-        for (PersonalityDepiction personalityDepiction : request.getPersonalityDepictionList()) {
-            if (!member.getPersonalityDepictionList().contains(personalityDepiction)) {
-                nonExistingPersonalityDepictions.add(PersonalityDepictionAllocation.builder()
-                        .personalityDepiction(personalityDepiction).member(member).build());
-            }
-        }
-
-        List<HobbyAllocation> nonExistingHobbies = new ArrayList<>();
-        for (Hobby hobby : request.getHobbyList()) {
-            if (!member.getHobbyList().contains(hobby)) {
-                nonExistingHobbies.add(HobbyAllocation.builder()
-                        .hobby(hobby).member(member).build());
-            }
-        }
-
-        member.updateProfile(request, nonExistingFaceDepictions, nonExistingPersonalityDepictions, nonExistingHobbies);
+        member.updateProfile(request);
     }
 
     @Transactional
@@ -191,15 +145,16 @@ public class MemberService {
     }
 
     /**
-     * 주어진 회원의 '회사 사람 만나지 않기' 값을 토글하는 메서드이다.
-     * @param member 값을 토글할 회원 엔티티
+     * 주어진 회원의 '회사 사람 만나지 않기' 값을 변경하는 메서드이다.
+     * @param member 값을 바꿀 Member 엔티티
+     * @param disableCompany 바꿀 '회사 사람 만나지 않기' 값
      * @return 변경된 '회사 사람 만나지 않기' 값
      */
     @Transactional
-    public DisableCompanyResponse toggleDisableCompany(Member member) {
-        Boolean disableCompany = member.toggleDisableCompany();
+    public DisableCompanyResponse updateDisableCompany(Member member, Boolean disableCompany) {
+        Boolean newDisableCompany = member.updateDisableCompany(disableCompany);
 
-        return DisableCompanyResponse.create(disableCompany);
+        return DisableCompanyResponse.create(newDisableCompany);
     }
 
     /**

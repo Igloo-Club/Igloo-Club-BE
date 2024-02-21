@@ -21,7 +21,14 @@ public enum PersonalityDepiction {
     EMPATHETIC("공감능력이 뛰어나요"),
     PASSIONATE("열정적이에요"),
     WELL_PLANNED("계획적이에요"),
-    GOOD_AT_EXPRESSING_FEELINGS("감정 표현을 잘해요");
+    CUTE("애교가 많아요"),
+    GOOD_LISTENER("이야기를 잘 들어줘요"),
+    GOOD_HORSE("말을 잘해요"),
+    FRIENDLY("다정해요"),
+    JOKER("장난기가 많아요"),
+    LAUGHER("웃음이 많아요"),
+    GOOD_AT_LIVING("생활력이 좋아요"),
+    ;
 
     private final String title;
 }

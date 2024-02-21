@@ -33,7 +33,14 @@ public class NungilController {
     @GetMapping("/nungils")
     public ResponseEntity<Slice<NungilSliceResponse>> getNungilsByMemberAndStatus(Principal principal, @RequestParam NungilStatus status, @RequestParam int page, @RequestParam int size){
         Member member = getMember(principal);
-        Slice<NungilSliceResponse> nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(member, status, page, size);
+
+        Slice<NungilSliceResponse> nungilPageResponses = null;
+        if (NungilStatus.RECOMMENDED.equals(status)) {
+            nungilPageResponses = nungilService.getRecommendedNungilSlice(member, page, size);
+        } else {
+            nungilPageResponses = nungilService.getNungilSliceByMemberAndStatus(member, status, page, size);
+        }
+
         return ResponseEntity.ok(nungilPageResponses);
     }
 
