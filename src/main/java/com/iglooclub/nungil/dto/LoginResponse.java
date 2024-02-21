@@ -7,5 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginResponse {
     private String accessToken;
-    private String refreshToken;
+
+    // 다음 수행할 가입 절차
+    private String nextProgress;
+
+    private Boolean isProfileRegistered;
 }
