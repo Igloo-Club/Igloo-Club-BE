@@ -1,6 +1,8 @@
 package com.iglooclub.nungil.domain;
 
 import com.iglooclub.nungil.domain.enums.*;
+import com.iglooclub.nungil.dto.ConsentUpdateRequest;
+import com.iglooclub.nungil.dto.ProfileCreateRequest;
 import com.iglooclub.nungil.dto.ProfileUpdateRequest;
 import com.iglooclub.nungil.util.converter.YoilListConverter;
 import lombok.AllArgsConstructor;
@@ -26,6 +28,9 @@ public class Member {
     private OauthInfo oauthInfo;
 
     private String oauthAccess;
+
+    @Embedded
+    private ConsentPolicy consentPolicy;
 
     private String nickname;
 
@@ -297,5 +302,9 @@ public class Member {
     public Boolean updateDisableCompany(Boolean disableCompany) {
         this.disableCompany = disableCompany;
         return this.disableCompany;
+    }
+
+    public void updateConsentPolicy(ConsentPolicy consentPolicy) {
+        this.consentPolicy = consentPolicy;
     }
 }

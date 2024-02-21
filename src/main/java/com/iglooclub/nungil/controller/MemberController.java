@@ -19,6 +19,13 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @PatchMapping("/api/member/consent")
+    public ResponseEntity<?> updateConsentPolicy(@RequestBody ConsentUpdateRequest request, Principal principal) {
+        Member member = getMember(principal);
+        memberService.updateConsentPolicy(request, member);
+        return ResponseEntity.ok(null);
+    }
+
     @PostMapping("/api/member")
     public ResponseEntity<?> createProfile(@RequestBody @Valid ProfileUpdateRequest request, Principal principal) {
         Member member = getMember(principal);

@@ -188,4 +188,15 @@ public class MemberService {
         return markerList;
     }
 
+    /**
+     * 약관 선택 항목 동의 여부를 갱신하는 메서드입니다.
+     * @param request 선택 약관 별 동의 여부를 나타내는 DTO
+     * @param member 약관 동의 여부를 갱신할 사용자 Entity
+     */
+    @Transactional
+    public void updateConsentPolicy(ConsentUpdateRequest request, Member member) {
+        ConsentPolicy consentPolicy = ConsentPolicy.create(request.getAgreeMarketing());
+
+        member.updateConsentPolicy(consentPolicy);
+    }
 }
