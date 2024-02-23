@@ -182,7 +182,9 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member member = nungil.getReceiver();
-        return convertToNungilResponse(member);
+        NungilResponse nungilResponse = convertToNungilResponse(member);
+        nungilResponse.setExpiredAt(nungil.getExpiredAt());
+        return nungilResponse;
     }
 
     /**
