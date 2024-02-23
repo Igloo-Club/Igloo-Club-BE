@@ -79,7 +79,7 @@ public class NungilService {
         member.plusDrawCount();
 
         // 6. 추천 받은 회원 정보를 반환한다.
-        return convertToNungilResponse(recommendedMember);
+        return convertToNungilResponse(recommendedMember, newNungil);
     }
 
     @Nullable
@@ -182,8 +182,7 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member member = nungil.getReceiver();
-        NungilResponse nungilResponse = convertToNungilResponse(member);
-        nungilResponse.setExpiredAt(nungil.getExpiredAt());
+        NungilResponse nungilResponse = convertToNungilResponse(member, nungil);
         return nungilResponse;
     }
 
@@ -355,7 +354,7 @@ public class NungilService {
     }
 
     //Member 엔티티의 데이터를 NungilResponseDTO로 변환하는 메서드
-    private NungilResponse convertToNungilResponse(Member member) {
+    private NungilResponse convertToNungilResponse(Member member, Nungil nungil) {
         return NungilResponse.builder()
                 .id(member.getId())
                 .location(member.getLocation().getTitle())
@@ -375,6 +374,7 @@ public class NungilService {
                 .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationAsString())
                 .description(member.getDescription())
                 .hobbyAllocationList(member.getHobbyAllocationAsString())
+                .expiredAt(nungil.getExpiredAt())
                 .build();
     }
 
