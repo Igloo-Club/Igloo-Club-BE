@@ -337,11 +337,11 @@ public class NungilService {
     }
 
     /**
-     * 매일 오전 11시에 추천된 눈길을 삭제하고,
+     * 매일 자정에 추천된 눈길을 삭제하고,
      * 전날에 추천되었던 회원이 다시 추천될 수 있도록 합니다.
      *
      */
-    @Scheduled(cron = "0 0 11 * * *") // 매일 오전 11시에 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     @Transactional
     public void deleteRecommendedNungils() {
         nungilRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);

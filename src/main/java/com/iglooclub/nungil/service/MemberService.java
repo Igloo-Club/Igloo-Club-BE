@@ -158,10 +158,10 @@ public class MemberService {
     }
 
     /**
-     * 매일 오후 3시에 drawCount = 0으로 초기화
+     * 매일 자정에 drawCount = 0으로 초기화
      *
      */
-    @Scheduled(cron = "0 0 15 * * *") // 매일 오후 3시에 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     @Transactional
     public void initMemberDrawCount() {
         memberRepository.initDrawCount();
