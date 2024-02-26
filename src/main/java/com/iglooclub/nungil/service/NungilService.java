@@ -79,7 +79,7 @@ public class NungilService {
         member.plusDrawCount();
 
         // 6. 추천 받은 회원 정보를 반환한다.
-        return convertToNungilResponse(recommendedMember);
+        return convertToNungilResponse(newNungil);
     }
 
     @Nullable
@@ -182,7 +182,8 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member member = nungil.getReceiver();
-        return convertToNungilResponse(member);
+        NungilResponse nungilResponse = convertToNungilResponse(nungil);
+        return nungilResponse;
     }
 
     /**
@@ -353,26 +354,27 @@ public class NungilService {
     }
 
     //Member 엔티티의 데이터를 NungilResponseDTO로 변환하는 메서드
-    private NungilResponse convertToNungilResponse(Member member) {
+    private NungilResponse convertToNungilResponse(Nungil nungil) {
         return NungilResponse.builder()
-                .id(member.getId())
-                .location(member.getLocation().getTitle())
-                .sex(member.getSex())
-                .age(LocalDateTime.now().minusYears(member.getBirthdate().getYear()).getYear())
-                .companyName(member.getCompany().getCompanyName())
-                .nickname(member.getNickname())
-                .animalFace(member.getAnimalFace().getTitle())
-                .alcohol(member.getAlcohol().getTitle())
-                .smoke(member.getSmoke().getTitle())
-                .religion(member.getReligion().getTitle())
-                .mbti(member.getMbti())
-                .job(member.getJob())
-                .height(member.getHeight())
-                .marriageState(member.getMarriageState().getTitle())
-                .faceDepictionAllocationList(member.getFaceDepictionAllocationsAsString())
-                .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationAsString())
-                .description(member.getDescription())
-                .hobbyAllocationList(member.getHobbyAllocationAsString())
+                .id(nungil.getReceiver().getId())
+                .location(nungil.getReceiver().getLocation().getTitle())
+                .sex(nungil.getReceiver().getSex())
+                .age(LocalDateTime.now().minusYears(nungil.getReceiver().getBirthdate().getYear()).getYear())
+                .companyName(nungil.getReceiver().getCompany().getCompanyName())
+                .nickname(nungil.getReceiver().getNickname())
+                .animalFace(nungil.getReceiver().getAnimalFace().getTitle())
+                .alcohol(nungil.getReceiver().getAlcohol().getTitle())
+                .smoke(nungil.getReceiver().getSmoke().getTitle())
+                .religion(nungil.getReceiver().getReligion().getTitle())
+                .mbti(nungil.getReceiver().getMbti())
+                .job(nungil.getReceiver().getJob())
+                .height(nungil.getReceiver().getHeight())
+                .marriageState(nungil.getReceiver().getMarriageState().getTitle())
+                .faceDepictionAllocationList(nungil.getReceiver().getFaceDepictionAllocationsAsString())
+                .personalityDepictionAllocationList(nungil.getReceiver().getPersonalityDepictionAllocationAsString())
+                .description(nungil.getReceiver().getDescription())
+                .hobbyAllocationList(nungil.getReceiver().getHobbyAllocationAsString())
+                .expiredAt(nungil.getExpiredAt())
                 .build();
     }
 

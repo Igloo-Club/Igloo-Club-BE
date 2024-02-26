@@ -1,15 +1,10 @@
 package com.iglooclub.nungil.dto;
 
-import com.iglooclub.nungil.domain.Contact;
-import com.iglooclub.nungil.domain.FaceDepictionAllocation;
-import com.iglooclub.nungil.domain.enums.Hobby;
-import com.iglooclub.nungil.domain.PersonalityDepictionAllocation;
 import com.iglooclub.nungil.domain.enums.*;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -50,4 +45,5 @@ public class NungilResponse {
 
     private String hobbyAllocationList;
 
+    private LocalDateTime expiredAt;
 }
