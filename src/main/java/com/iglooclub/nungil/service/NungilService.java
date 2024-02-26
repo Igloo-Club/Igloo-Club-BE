@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -274,15 +275,14 @@ public class NungilService {
 
         // 매칭된 사용자 간에 겹치는 시간, 마커를 조회하여 저장
         List<Marker> marker = findCommonMarkers(member, sender);
-        Yoil yoil = findCommonYoil(member, sender);
         AvailableTime time = null;
 
         List<AvailableTime> commonAvailableTimes = findCommonAvailableTimes(member, sender);
         if(!commonAvailableTimes.isEmpty()){
             time = commonAvailableTimes.get(0);
         }
-        receivedNungil.update(marker, time, yoil);
-        sentNungil.update(marker, time, yoil);
+        receivedNungil.update(marker, time);
+        sentNungil.update(marker, time);
 
         // 매칭된 사용자들을 채팅방에 초대
         ChatRoom chatRoom = ChatRoom.create(member, sender);
@@ -306,7 +306,7 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
 
-        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인한다.
+        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인
         if (!nungil.getMember().equals(member)) {
             throw new GeneralException(MemberErrorResult.NOT_OWNER);
         }
@@ -318,11 +318,17 @@ public class NungilService {
             throw new GeneralException(ChatRoomErrorResult.CHAT_ROOM_MORE_THAN_ONE);
         }
 
-        // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환한다.
+        // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환
         Long chatRoomId = chatRooms.isEmpty() ? null : chatRooms.get(0).getId();
 
+        // 두 사용자의 공통되는 요일과 그에 해당되는 일자
+        MatchYoilAndTimeResponse response = findCommonYoil(nungil.getMember(), nungil.getReceiver());
 
-        return NungilMatchResponse.create(nungil, chatRoomId);
+        Yoil matchYoil = (response != null) ? response.getMatchYoil() : null;
+        LocalDate matchDate = (response != null) ? response.getMatchDate() : null;
+
+
+        return NungilMatchResponse.create(nungil, chatRoomId, matchYoil, matchDate);
     }
 
     /**
@@ -411,12 +417,11 @@ public class NungilService {
 
         return new ArrayList<>(markerSet1);
     }
-    public Yoil findCommonYoil(Member member1, Member member2) {
+    public MatchYoilAndTimeResponse findCommonYoil(Member member1, Member member2) {
         List<Yoil> list1 = member1.getYoilList();
         List<Yoil> list2 = member2.getYoilList();
         Set<DayOfWeek> set1 = EnumSet.noneOf(DayOfWeek.class);
         for (Yoil yoil : list1) {
-
             set1.add(yoil.getDayOfWeek());
         }
 
@@ -428,7 +433,8 @@ public class NungilService {
                 if (isAfter11AM) {
                     return findNextYoil(yoil, now, set1);
                 } else {
-                    return yoil;
+                    int offset = (7+yoil.getDayOfWeek().getValue()-now.getDayOfWeek().getValue())%7;
+                    return new MatchYoilAndTimeResponse(yoil, LocalDate.now().plusDays(offset));
                 }
             }
         }
@@ -436,23 +442,23 @@ public class NungilService {
         return null;
     }
 
-    private Yoil findNextYoil(Yoil yoil, LocalDateTime now, Set<DayOfWeek> availableDays) {
+    private MatchYoilAndTimeResponse findNextYoil(Yoil yoil, LocalDateTime now, Set<DayOfWeek> availableDays) {
         DayOfWeek today = now.getDayOfWeek();
         int offset = 0;
         DayOfWeek nextDay = today;
 
         do {
             offset++;
-            nextDay = DayOfWeek.of((today.getValue() + offset - 1) % 7 + 1); // 요일을 순환합니다.
+            nextDay = DayOfWeek.of((today.getValue() + offset - 1) % 7 + 1); // 요일을 순환
         } while (!availableDays.contains(nextDay)); // 다음 사용 가능한 요일을 찾을 때까지 반복
 
         for (Yoil nextYoil : Yoil.values()) {
             if (nextYoil.getDayOfWeek().equals(nextDay)) {
-                return nextYoil; // 다음 요일에 해당하는 Yoil 열거형을 반환
+                return new MatchYoilAndTimeResponse(nextYoil, LocalDate.now().plusDays(offset));
             }
         }
 
-        return yoil;
+        return new MatchYoilAndTimeResponse(yoil, LocalDate.now().plusDays(offset));
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.iglooclub.nungil.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iglooclub.nungil.domain.Nungil;
 import com.iglooclub.nungil.domain.enums.AvailableTime;
 import com.iglooclub.nungil.domain.enums.Location;
@@ -8,6 +9,7 @@ import com.iglooclub.nungil.domain.enums.Yoil;
 import lombok.*;
 import org.springframework.lang.Nullable;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +18,10 @@ import java.util.stream.Collectors;
 public class NungilMatchResponse {
 
     @Nullable
-    private String yoil;
+    private String matchYoil;
+
+    @JsonFormat(pattern = "yyyyMMdd")
+    private LocalDate matchDate;
 
     @Nullable
     private String time;
@@ -28,12 +33,13 @@ public class NungilMatchResponse {
     @Nullable
     private Long chatRoomId;
 
-    public static NungilMatchResponse create(Nungil nungil, Long chatRoomId) {
+    public static NungilMatchResponse create(Nungil nungil, Long chatRoomId, Yoil matchYoil, LocalDate matchDate) {
 
         NungilMatchResponse response = new NungilMatchResponse();
 
-        Yoil matchedYoil = nungil.getMatchedYoil();
-        response.yoil = (matchedYoil != null) ? matchedYoil.getTitle() : null;
+        response.matchYoil = (matchYoil != null) ? matchYoil.getTitle() : null;
+
+        response.matchDate = (matchYoil != null) ? matchDate : null;
 
         AvailableTime matchedAvailableTime = nungil.getMatchedAvailableTime();
         response.time = (matchedAvailableTime != null) ? matchedAvailableTime.getTitle() : null;
