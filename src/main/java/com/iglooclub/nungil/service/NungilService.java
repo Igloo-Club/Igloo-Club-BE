@@ -2,6 +2,7 @@ package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
+import com.iglooclub.nungil.domain.events.NungilMatchedEvent;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
@@ -14,6 +15,7 @@ import com.iglooclub.nungil.repository.NungilRepository;
 import com.iglooclub.nungil.util.CoolSMS;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ public class NungilService {
     private final MemberService memberService;
 
     private final CoolSMS coolSMS;
+
+    private final ApplicationEventPublisher publisher;
 
     private static final String BASE_URL = "https://nungil.com";
 
@@ -196,6 +200,7 @@ public class NungilService {
      */
     @Transactional
     public void sendNungil(Member member, Long nungilId){
+        long startTime = System.currentTimeMillis();
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member receiver = nungil.getReceiver();
@@ -226,11 +231,15 @@ public class NungilService {
         nungilRepository.save(newNungil);
 
         // 눈길 받은 사용자에게 알림 전송
-        String phoneNumber = receiver.getPhoneNumber();
-        String url = BASE_URL + "/receiveddetailpage/" + newNungil.getId();
-        String text = "[눈길] 새로운 눈길이 도착했어요. 얼른 확인해보세요!\n" + url;
+//        String phoneNumber = receiver.getPhoneNumber();
+//        String url = BASE_URL + "/receiveddetailpage/" + newNungil.getId();
+//        String text = "[눈길] 새로운 눈길이 도착했어요. 얼른 확인해보세요!\n" + url;
+//
+//        coolSMS.send(phoneNumber, text);
+        this.sendNungilSMS(receiver, newNungil);
+        long stopTime = System.currentTimeMillis();
+        System.out.println(stopTime - startTime);
 
-        coolSMS.send(phoneNumber, text);
     }
 
     /**
@@ -241,7 +250,7 @@ public class NungilService {
      */
     @Transactional
     public void matchNungil(Long nungilId){
-
+        long startTime = System.currentTimeMillis();
         Nungil receivedNungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         //눈길이 잘못된 상태일 시 에러 발생
@@ -289,12 +298,22 @@ public class NungilService {
         chatRoomRepository.save(chatRoom);
 
         // 눈길 보낸 사용자에게 알림 전송
-        String phoneNumber = sender.getPhoneNumber();
-        String url = BASE_URL + "/finishmatch/" + sentNungil.getId();
-        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
+//        String phoneNumber = sender.getPhoneNumber();
+//        String url = BASE_URL + "/finishmatch/" + sentNungil.getId();
+//        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
 
-        coolSMS.send(phoneNumber, text);
+
+        this.sendNungilSMS(sender, sentNungil);
+//        coolSMS.send(phoneNumber, text);
+        long stopTime = System.currentTimeMillis();
+        System.out.println(stopTime - startTime);
+
     }
+
+    public void sendNungilSMS(Member sender, Nungil sentNungil){
+        publisher.publishEvent(new NungilMatchedEvent(sender, sentNungil));
+    }
+
 
     /**
      * 공통 매칭 정보를 조회하는 api입니다
