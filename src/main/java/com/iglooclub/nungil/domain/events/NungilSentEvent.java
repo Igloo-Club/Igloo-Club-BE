@@ -18,4 +18,8 @@ public class NungilSentEvent {
 
     @NotNull
     private final Nungil sentNungil;
+
+    public String getSenderPhoneNumber(){
+        return sender.getPhoneNumber();
+    }
 }

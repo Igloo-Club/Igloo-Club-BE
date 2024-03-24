@@ -18,4 +18,8 @@ public class NungilMatchedEvent {
 
     @NotNull
     private final Nungil sentNungil;
+
+    public String getMatcherPhoneNumber(){
+        return sender.getPhoneNumber();
+    }
 }
