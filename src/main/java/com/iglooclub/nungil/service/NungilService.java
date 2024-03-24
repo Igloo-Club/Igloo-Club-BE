@@ -3,6 +3,7 @@ package com.iglooclub.nungil.service;
 import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
 import com.iglooclub.nungil.domain.events.NungilMatchedEvent;
+import com.iglooclub.nungil.domain.events.NungilSentEvent;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
@@ -200,7 +201,6 @@ public class NungilService {
      */
     @Transactional
     public void sendNungil(Member member, Long nungilId){
-        long startTime = System.currentTimeMillis();
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member receiver = nungil.getReceiver();
@@ -237,9 +237,9 @@ public class NungilService {
 //
 //        coolSMS.send(phoneNumber, text);
         this.sendNungilSMS(receiver, newNungil);
-        long stopTime = System.currentTimeMillis();
-        System.out.println(stopTime - startTime);
-
+    }
+    public void sendNungilSMS(Member sender, Nungil sentNungil){
+        publisher.publishEvent(new NungilSentEvent(sender, sentNungil));
     }
 
     /**
@@ -250,7 +250,6 @@ public class NungilService {
      */
     @Transactional
     public void matchNungil(Long nungilId){
-        long startTime = System.currentTimeMillis();
         Nungil receivedNungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         //눈길이 잘못된 상태일 시 에러 발생
@@ -303,14 +302,11 @@ public class NungilService {
 //        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
 
 
-        this.sendNungilSMS(sender, sentNungil);
+        this.sendMatchSMS(sender, sentNungil);
 //        coolSMS.send(phoneNumber, text);
-        long stopTime = System.currentTimeMillis();
-        System.out.println(stopTime - startTime);
-
     }
 
-    public void sendNungilSMS(Member sender, Nungil sentNungil){
+    public void sendMatchSMS(Member sender, Nungil sentNungil){
         publisher.publishEvent(new NungilMatchedEvent(sender, sentNungil));
     }
 
