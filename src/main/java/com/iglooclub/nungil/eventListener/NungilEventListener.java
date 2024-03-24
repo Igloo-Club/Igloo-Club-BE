@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class NungilEventListener {
     private static final String BASE_URL = "https://nungil.com";
 
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void matchNungilListen(NungilMatchedEvent nungilMatchedEvent){
         // 눈길 보낸 사용자에게 알림 전송
         String phoneNumber = nungilMatchedEvent.getSender().getPhoneNumber();
@@ -28,6 +30,7 @@ public class NungilEventListener {
 
     @Async
     @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sentNungilListen(NungilSentEvent nungilSentEvent){
         // 눈길 보낸 사용자에게 알림 전송
         String phoneNumber = nungilSentEvent.getSender().getPhoneNumber();
