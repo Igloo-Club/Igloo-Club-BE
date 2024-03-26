@@ -47,7 +47,7 @@ public class NungilService {
 
     private static final String BASE_URL = "https://nungil.com";
 
-    private static final Long RECOMMENDATION_LIMIT = 3L;
+    private static final Long RECOMMENDATION_LIMIT = 5L;
 
     /* 눈길 관리 */
     /**
