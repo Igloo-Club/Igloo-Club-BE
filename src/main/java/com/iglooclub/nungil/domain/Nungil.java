@@ -38,10 +38,6 @@ public class Nungil {
     @JoinColumn(name = "receiver_id")
     private Member receiver;
 
-    @Nullable
-    @Enumerated(EnumType.STRING)
-    private Yoil matchedYoil;
-
     // 리스트를 쉼표로 구분된 문자열로 DB에 저장
     @Convert(converter = MarkerListConverter.class)
     @Builder.Default
@@ -73,11 +69,10 @@ public class Nungil {
         this.expiredAt = null;
     }
 
-    public void update(List<Marker> matchedMarkers, AvailableTime matchedAvailableTime, Yoil matchedYoil) {
+    public void update(List<Marker> matchedMarkers, AvailableTime matchedAvailableTime) {
         this.matchedMarkers.clear();
         this.matchedMarkers.addAll(matchedMarkers);
         this.matchedAvailableTime = matchedAvailableTime;
-        this.matchedYoil = matchedYoil;
     }
 
 

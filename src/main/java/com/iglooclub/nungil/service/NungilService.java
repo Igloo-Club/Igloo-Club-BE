@@ -2,6 +2,8 @@ package com.iglooclub.nungil.service;
 
 import com.iglooclub.nungil.domain.*;
 import com.iglooclub.nungil.domain.enums.*;
+import com.iglooclub.nungil.domain.events.NungilMatchedEvent;
+import com.iglooclub.nungil.domain.events.NungilSentEvent;
 import com.iglooclub.nungil.dto.*;
 import com.iglooclub.nungil.exception.ChatRoomErrorResult;
 import com.iglooclub.nungil.exception.GeneralException;
@@ -14,6 +16,7 @@ import com.iglooclub.nungil.repository.NungilRepository;
 import com.iglooclub.nungil.util.CoolSMS;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,6 +42,8 @@ public class NungilService {
     private final MemberService memberService;
 
     private final CoolSMS coolSMS;
+
+    private final ApplicationEventPublisher publisher;
 
     private static final String BASE_URL = "https://nungil.com";
 
@@ -79,7 +85,7 @@ public class NungilService {
         member.plusDrawCount();
 
         // 6. 추천 받은 회원 정보를 반환한다.
-        return convertToNungilResponse(recommendedMember);
+        return convertToNungilResponse(newNungil);
     }
 
     @Nullable
@@ -182,7 +188,8 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         Member member = nungil.getReceiver();
-        return convertToNungilResponse(member);
+        NungilResponse nungilResponse = convertToNungilResponse(nungil);
+        return nungilResponse;
     }
 
     /**
@@ -224,11 +231,15 @@ public class NungilService {
         nungilRepository.save(newNungil);
 
         // 눈길 받은 사용자에게 알림 전송
-        String phoneNumber = receiver.getPhoneNumber();
-        String url = BASE_URL + "/receiveddetailpage/" + newNungil.getId();
-        String text = "[눈길] 새로운 눈길이 도착했어요. 얼른 확인해보세요!\n" + url;
-
-        coolSMS.send(phoneNumber, text);
+//        String phoneNumber = receiver.getPhoneNumber();
+//        String url = BASE_URL + "/receiveddetailpage/" + newNungil.getId();
+//        String text = "[눈길] 새로운 눈길이 도착했어요. 얼른 확인해보세요!\n" + url;
+//
+//        coolSMS.send(phoneNumber, text);
+        this.sendNungilSMS(receiver, newNungil);
+    }
+    public void sendNungilSMS(Member sender, Nungil sentNungil){
+        publisher.publishEvent(new NungilSentEvent(sender, sentNungil));
     }
 
     /**
@@ -239,7 +250,6 @@ public class NungilService {
      */
     @Transactional
     public void matchNungil(Long nungilId){
-
         Nungil receivedNungil = nungilRepository.findById(nungilId)
                 .orElseThrow(()->new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
         //눈길이 잘못된 상태일 시 에러 발생
@@ -273,27 +283,33 @@ public class NungilService {
 
         // 매칭된 사용자 간에 겹치는 시간, 마커를 조회하여 저장
         List<Marker> marker = findCommonMarkers(member, sender);
-        Yoil yoil = findCommonYoil(member, sender);
         AvailableTime time = null;
 
         List<AvailableTime> commonAvailableTimes = findCommonAvailableTimes(member, sender);
         if(!commonAvailableTimes.isEmpty()){
             time = commonAvailableTimes.get(0);
         }
-        receivedNungil.update(marker, time, yoil);
-        sentNungil.update(marker, time, yoil);
+        receivedNungil.update(marker, time);
+        sentNungil.update(marker, time);
 
         // 매칭된 사용자들을 채팅방에 초대
         ChatRoom chatRoom = ChatRoom.create(member, sender);
         chatRoomRepository.save(chatRoom);
 
         // 눈길 보낸 사용자에게 알림 전송
-        String phoneNumber = sender.getPhoneNumber();
-        String url = BASE_URL + "/finishmatch/" + sentNungil.getId();
-        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
+//        String phoneNumber = sender.getPhoneNumber();
+//        String url = BASE_URL + "/finishmatch/" + sentNungil.getId();
+//        String text = "[눈길] 축하해요! 서로의 눈길이 닿았어요. 채팅방을 통해 두 분의 첫만남 약속을 잡아보세요.\n" + url;
 
-        coolSMS.send(phoneNumber, text);
+
+        this.sendMatchSMS(sender, sentNungil);
+//        coolSMS.send(phoneNumber, text);
     }
+
+    public void sendMatchSMS(Member sender, Nungil sentNungil){
+        publisher.publishEvent(new NungilMatchedEvent(sender, sentNungil));
+    }
+
 
     /**
      * 공통 매칭 정보를 조회하는 api입니다
@@ -305,7 +321,7 @@ public class NungilService {
         Nungil nungil = nungilRepository.findById(nungilId)
                 .orElseThrow(() -> new GeneralException(NungilErrorResult.NUNGIL_NOT_FOUND));
 
-        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인한다.
+        // 요청을 보낸 사용자가 주어진 눈길의 소유자인지 확인
         if (!nungil.getMember().equals(member)) {
             throw new GeneralException(MemberErrorResult.NOT_OWNER);
         }
@@ -317,11 +333,17 @@ public class NungilService {
             throw new GeneralException(ChatRoomErrorResult.CHAT_ROOM_MORE_THAN_ONE);
         }
 
-        // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환한다.
+        // 두 사용자가 속한 채팅방이 존재하지 않는 경우 null을 반환
         Long chatRoomId = chatRooms.isEmpty() ? null : chatRooms.get(0).getId();
 
+        // 두 사용자의 공통되는 요일과 그에 해당되는 일자
+        MatchYoilAndTimeResponse response = findCommonYoil(nungil.getMember(), nungil.getReceiver());
 
-        return NungilMatchResponse.create(nungil, chatRoomId);
+        Yoil matchYoil = (response != null) ? response.getMatchYoil() : null;
+        LocalDate matchDate = (response != null) ? response.getMatchDate() : null;
+
+
+        return NungilMatchResponse.create(nungil, chatRoomId, matchYoil, matchDate);
     }
 
     /**
@@ -337,11 +359,11 @@ public class NungilService {
     }
 
     /**
-     * 매일 오전 11시에 추천된 눈길을 삭제하고,
+     * 매일 자정에 추천된 눈길을 삭제하고,
      * 전날에 추천되었던 회원이 다시 추천될 수 있도록 합니다.
      *
      */
-    @Scheduled(cron = "0 0 11 * * *") // 매일 오전 11시에 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     @Transactional
     public void deleteRecommendedNungils() {
         nungilRepository.deleteAllByStatus(NungilStatus.RECOMMENDED);
@@ -353,26 +375,27 @@ public class NungilService {
     }
 
     //Member 엔티티의 데이터를 NungilResponseDTO로 변환하는 메서드
-    private NungilResponse convertToNungilResponse(Member member) {
+    private NungilResponse convertToNungilResponse(Nungil nungil) {
         return NungilResponse.builder()
-                .id(member.getId())
-                .location(member.getLocation().getTitle())
-                .sex(member.getSex())
-                .age(LocalDateTime.now().minusYears(member.getBirthdate().getYear()).getYear())
-                .companyName(member.getCompany().getCompanyName())
-                .nickname(member.getNickname())
-                .animalFace(member.getAnimalFace().getTitle())
-                .alcohol(member.getAlcohol().getTitle())
-                .smoke(member.getSmoke().getTitle())
-                .religion(member.getReligion().getTitle())
-                .mbti(member.getMbti())
-                .job(member.getJob())
-                .height(member.getHeight())
-                .marriageState(member.getMarriageState().getTitle())
-                .faceDepictionAllocationList(member.getFaceDepictionAllocationsAsString())
-                .personalityDepictionAllocationList(member.getPersonalityDepictionAllocationAsString())
-                .description(member.getDescription())
-                .hobbyAllocationList(member.getHobbyAllocationAsString())
+                .id(nungil.getReceiver().getId())
+                .location(nungil.getReceiver().getLocation().getTitle())
+                .sex(nungil.getReceiver().getSex())
+                .age(LocalDateTime.now().minusYears(nungil.getReceiver().getBirthdate().getYear()).getYear())
+                .companyName(nungil.getReceiver().getCompany().getCompanyName())
+                .nickname(nungil.getReceiver().getNickname())
+                .animalFace(nungil.getReceiver().getAnimalFace().getTitle())
+                .alcohol(nungil.getReceiver().getAlcohol().getTitle())
+                .smoke(nungil.getReceiver().getSmoke().getTitle())
+                .religion(nungil.getReceiver().getReligion().getTitle())
+                .mbti(nungil.getReceiver().getMbti())
+                .job(nungil.getReceiver().getJob())
+                .height(nungil.getReceiver().getHeight())
+                .marriageState(nungil.getReceiver().getMarriageState().getTitle())
+                .faceDepictionAllocationList(nungil.getReceiver().getFaceDepictionAllocationsAsString())
+                .personalityDepictionAllocationList(nungil.getReceiver().getPersonalityDepictionAllocationAsString())
+                .description(nungil.getReceiver().getDescription())
+                .hobbyAllocationList(nungil.getReceiver().getHobbyAllocationAsString())
+                .expiredAt(nungil.getExpiredAt())
                 .build();
     }
 
@@ -409,12 +432,11 @@ public class NungilService {
 
         return new ArrayList<>(markerSet1);
     }
-    public Yoil findCommonYoil(Member member1, Member member2) {
+    public MatchYoilAndTimeResponse findCommonYoil(Member member1, Member member2) {
         List<Yoil> list1 = member1.getYoilList();
         List<Yoil> list2 = member2.getYoilList();
         Set<DayOfWeek> set1 = EnumSet.noneOf(DayOfWeek.class);
         for (Yoil yoil : list1) {
-
             set1.add(yoil.getDayOfWeek());
         }
 
@@ -426,7 +448,8 @@ public class NungilService {
                 if (isAfter11AM) {
                     return findNextYoil(yoil, now, set1);
                 } else {
-                    return yoil;
+                    int offset = (7+yoil.getDayOfWeek().getValue()-now.getDayOfWeek().getValue())%7;
+                    return new MatchYoilAndTimeResponse(yoil, LocalDate.now().plusDays(offset));
                 }
             }
         }
@@ -434,23 +457,23 @@ public class NungilService {
         return null;
     }
 
-    private Yoil findNextYoil(Yoil yoil, LocalDateTime now, Set<DayOfWeek> availableDays) {
+    private MatchYoilAndTimeResponse findNextYoil(Yoil yoil, LocalDateTime now, Set<DayOfWeek> availableDays) {
         DayOfWeek today = now.getDayOfWeek();
         int offset = 0;
         DayOfWeek nextDay = today;
 
         do {
             offset++;
-            nextDay = DayOfWeek.of((today.getValue() + offset - 1) % 7 + 1); // 요일을 순환합니다.
+            nextDay = DayOfWeek.of((today.getValue() + offset - 1) % 7 + 1); // 요일을 순환
         } while (!availableDays.contains(nextDay)); // 다음 사용 가능한 요일을 찾을 때까지 반복
 
         for (Yoil nextYoil : Yoil.values()) {
             if (nextYoil.getDayOfWeek().equals(nextDay)) {
-                return nextYoil; // 다음 요일에 해당하는 Yoil 열거형을 반환
+                return new MatchYoilAndTimeResponse(nextYoil, LocalDate.now().plusDays(offset));
             }
         }
 
-        return yoil;
+        return new MatchYoilAndTimeResponse(yoil, LocalDate.now().plusDays(offset));
     }
 
     /**

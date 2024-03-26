@@ -4,8 +4,11 @@ import com.iglooclub.nungil.config.jwt.JwtAccessDeniedHandler;
 import com.iglooclub.nungil.config.jwt.JwtAuthenticationEntryPoint;
 import com.iglooclub.nungil.config.jwt.TokenAuthenticationFilter;
 import com.iglooclub.nungil.config.jwt.TokenProvider;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,6 +27,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
+
+    private final SecurityConfigProperties securityConfigProperties;
 
     /**
      * 스프링 시큐리티 기능 비활성화
@@ -80,7 +85,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(
-                List.of("http://localhost:8080", "http://localhost:3000", "http://localhost:5173", "https://www.nungil.com")
+                securityConfigProperties.getAllowedOrigins()
         );
         config.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
@@ -96,6 +101,15 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    @Getter
+    @ConfigurationProperties(prefix = "security")
+    @ConstructorBinding
+    @RequiredArgsConstructor
+    private static class SecurityConfigProperties {
+
+        private final List<String> allowedOrigins;
     }
 }
 
