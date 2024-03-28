@@ -199,4 +199,8 @@ public class MemberService {
 
         member.updateConsentPolicy(consentPolicy);
     }
+
+    public ConsentPolicyResponse getConsentPolicy(Member member) {
+        return ConsentPolicyResponse.create(member.getConsentPolicy());
+    }
 }

@@ -1,18 +1,18 @@
 package com.iglooclub.nungil.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.iglooclub.nungil.domain.ConsentPolicy;
 import com.iglooclub.nungil.domain.Member;
 import com.iglooclub.nungil.domain.enums.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberDetailResponse {
     private String nickname;
 
@@ -55,6 +55,8 @@ public class MemberDetailResponse {
 
     private Boolean disableCompany;
 
+    private Boolean agreeMarketing;
+
     // == 생성 메서드 == //
     public static MemberDetailResponse create(Member member) {
         List<FaceDepiction> faceDepictionList = member.getFaceDepictionList();
@@ -63,27 +65,32 @@ public class MemberDetailResponse {
         List<AvailableTime> availableTimeList = member.getAvailableTimeList();
         List<Hobby> hobbyList = member.getHobbyList();
 
-        return MemberDetailResponse.builder()
-                .nickname(member.getNickname())
-                .sex(member.getSex())
-                .birthdate(member.getBirthdate())
-                .contactKakao(member.getContact().getKakao())
-                .contactInstagram(member.getContact().getInstagram())
-                .animalFace(member.getAnimalFace())
-                .job(member.getJob())
-                .height(member.getHeight())
-                .mbti(member.getMbti())
-                .marriageState(member.getMarriageState())
-                .religion(member.getReligion())
-                .alcohol(member.getAlcohol())
-                .smoke(member.getSmoke())
-                .faceDepictionList(faceDepictionList)
-                .personalityDepictionList(personalityDepictionList)
-                .description(member.getDescription())
-                .markerList(markerList)
-                .availableTimeList(availableTimeList)
-                .hobbyList(hobbyList)
-                .disableCompany(member.getDisableCompany())
-                .build();
+        MemberDetailResponse response = new MemberDetailResponse();
+
+        response.nickname = member.getNickname();
+        response.sex = member.getSex();
+        response.birthdate = member.getBirthdate();
+        response.contactKakao = member.getContact().getKakao();
+        response.contactInstagram = member.getContact().getInstagram();
+        response.animalFace = member.getAnimalFace();
+        response.job = member.getJob();
+        response.height = member.getHeight();
+        response.mbti = member.getMbti();
+        response.marriageState = member.getMarriageState();
+        response.religion = member.getReligion();
+        response.alcohol = member.getAlcohol();
+        response.smoke = member.getSmoke();
+        response.faceDepictionList = faceDepictionList;
+        response.personalityDepictionList = personalityDepictionList;
+        response.description = member.getDescription();
+        response.markerList = markerList;
+        response.availableTimeList = availableTimeList;
+        response.hobbyList = hobbyList;
+        response.disableCompany = member.getDisableCompany();
+
+        ConsentPolicy consentPolicy = member.getConsentPolicy();
+        response.agreeMarketing = consentPolicy != null && consentPolicy.getAgreeMarketing();
+
+        return response;
     }
 }
